@@ -38,3 +38,5 @@ console.log(optimeName);
 
 // let const var
 
+const greeting = "Hello, world!";
+
