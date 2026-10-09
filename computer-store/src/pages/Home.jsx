@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import Icon from '../Icons.jsx'
 import ProductCard, { AddButton } from '../components/ProductCard.jsx'
 import { categories, products, featured, byId, discount, fmt, MAX_PRICE } from '../data'
@@ -87,7 +88,7 @@ export default function Home() {
             <p>Подберём сборку под ваш бюджет, проверим её на стенде и привезём на следующий день.</p>
             <div className="hero-cta">
               <a className="btn btn-lg" href="#catalog">Открыть каталог</a>
-              <a className="btn btn-lg btn-ghost" href="#business">Опт и ПК-клубы</a>
+              <Link className="btn btn-lg btn-ghost" to="/configurator">Собрать ПК</Link>
             </div>
             <dl className="facts">
               <div><dt>Товаров в наличии</dt><dd>12 000+</dd></div>

@@ -6,6 +6,7 @@ import { ProductVisual } from './components/ProductCard.jsx'
 import Home from './pages/Home.jsx'
 import Product from './pages/Product.jsx'
 import Compare from './pages/Compare.jsx'
+import Configurator from './pages/Configurator.jsx'
 import { byId } from './data'
 import { useStore } from './store.jsx'
 
@@ -26,6 +27,7 @@ function Header() {
         <Link className="logo" to="/" aria-label="BYTE, на главную">BYTE<i /></Link>
         <nav className="nav-links" aria-label="Основная">
           <Link to="/#catalog">Каталог</Link>
+          <NavLink to="/configurator">Конфигуратор</NavLink>
           <Link to="/#service">Сервис</Link>
           <Link to="/#business">Опт и ПК-клубы</Link>
           <a href="#contacts">Контакты</a>
@@ -52,7 +54,7 @@ function Header() {
 function CompareBar() {
   const { compareIds, clearCompare } = useStore()
   const { pathname } = useLocation()
-  if (!compareIds.length || pathname === '/compare') return null
+  if (!compareIds.length || pathname === '/compare' || pathname === '/configurator') return null
   return (
     <div className="compare-bar" role="region" aria-label="Список сравнения">
       <div className="container compare-bar-in">
@@ -77,6 +79,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<Product />} />
           <Route path="/compare" element={<Compare />} />
+          <Route path="/configurator" element={<Configurator />} />
           <Route path="*" element={<div className="container page"><div className="empty big"><h1 className="h2">Страница не найдена</h1><Link className="btn" to="/">На главную</Link></div></div>} />
         </Routes>
       </main>

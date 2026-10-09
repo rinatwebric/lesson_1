@@ -42,6 +42,15 @@ export function StoreProvider({ children }) {
     setAnnounce(`${byId(id).name} добавлен в корзину`)
   }, [setItems])
 
+  const addMany = useCallback((ids, times = 1) => {
+    setItems((s) => {
+      const next = { ...s }
+      for (const id of ids) next[id] = Math.min((next[id] ?? 0) + times, 99)
+      return next
+    })
+    setAnnounce(`Сборка добавлена в корзину: ${ids.length} комплектующих`)
+  }, [setItems])
+
   const changeQty = useCallback((id, d) => {
     setItems((s) => {
       const q = (s[id] ?? 0) + d
@@ -72,7 +81,7 @@ export function StoreProvider({ children }) {
   }, [setCompareIds])
 
   const value = {
-    cart, addToCart, changeQty, removeFromCart, clearCart,
+    cart, addToCart, addMany, changeQty, removeFromCart, clearCart,
     compareIds: compareIds.filter((id) => byId(id)), toggleCompare, clearCompare: () => setCompareIds([]),
     theme, toggleTheme: () => setTheme((t) => (t === 'dark' ? 'light' : 'dark')),
     cartOpen, openCart: () => setCartOpen(true), closeCart: () => setCartOpen(false),
