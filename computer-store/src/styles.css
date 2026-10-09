@@ -162,6 +162,8 @@ input[type=range] { width: 100%; accent-color: var(--accent); height: 28px; }
 .result-count b { color: var(--ink); font-weight: 500; }
 
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.reveal { display: flex; flex-direction: column; min-width: 0; }
+.reveal > .card { flex: 1; }
 .card { display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; transition: border-color .15s, box-shadow .15s; }
 .card:hover { border-color: var(--accent); box-shadow: 4px 4px 0 var(--glow); }
 .card-visual { position: relative; display: grid; place-items: center; height: 150px; background: var(--visual-bg); color: var(--accent-text); overflow: hidden; }

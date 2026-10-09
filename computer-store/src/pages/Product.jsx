@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom'
 import Icon from '../Icons.jsx'
+import ScrollReveal, { fadeUp } from '../components/ScrollReveal.jsx'
 import ProductCard, { AddButton, CompareToggle, ProductVisual } from '../components/ProductCard.jsx'
 import { byId, catName, discount, fmt, products } from '../data'
 
@@ -62,7 +63,11 @@ export default function Product() {
       {similar.length > 0 && (
         <section className="similar">
           <h2 className="h3">Похожие товары</h2>
-          <div className="grid">{similar.map((x) => <ProductCard key={x.id} p={x} />)}</div>
+          <div className="grid">{similar.map((x, i) => (
+            <ScrollReveal key={x.id} className="reveal" variants={fadeUp} transition={{ duration: 0.45, ease: 'easeOut', delay: i * 0.08 }} viewOptions={{ amount: 0.15 }} once>
+              <ProductCard p={x} />
+            </ScrollReveal>
+          ))}</div>
         </section>
       )}
     </div>

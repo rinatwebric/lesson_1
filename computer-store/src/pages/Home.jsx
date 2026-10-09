@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Icon from '../Icons.jsx'
+import ScrollReveal, { fadeUp } from '../components/ScrollReveal.jsx'
 import ProductCard, { AddButton } from '../components/ProductCard.jsx'
 import { categories, products, featured, byId, discount, fmt, MAX_PRICE } from '../data'
 
@@ -96,7 +97,7 @@ export default function Home() {
               <div><dt>Возврат</dt><dd>14 дней</dd></div>
             </dl>
           </div>
-          <aside className="sheet" aria-label="Сборка недели">
+          <ScrollReveal as="aside" className="sheet" aria-label="Сборка недели" variants={{ hidden: { opacity: 0, x: 32 }, visible: { opacity: 1, x: 0 } }} transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 }} once>
             <div className="sheet-head"><span>Сборка недели</span><span className="mono">арт. 0{feat.id}</span></div>
             <h2>{feat.name}</h2>
             <dl className="sheet-rows">
@@ -109,7 +110,7 @@ export default function Home() {
               </div>
               <AddButton id={feat.id} large />
             </div>
-          </aside>
+          </ScrollReveal>
         </div>
       </section>
 
@@ -154,7 +155,11 @@ export default function Home() {
           <div>
             <p className="result-count" aria-live="polite">Найдено товаров: <b className="mono">{list.length}</b></p>
             {list.length ? (
-              <div className="grid">{list.map((p) => <ProductCard key={p.id} p={p} />)}</div>
+              <div className="grid">{list.map((p, i) => (
+                <ScrollReveal key={p.id} className="reveal" variants={fadeUp} transition={{ duration: 0.45, ease: 'easeOut', delay: (i % 3) * 0.06 }} viewOptions={{ amount: 0.15 }} once>
+                  <ProductCard p={p} />
+                </ScrollReveal>
+              ))}</div>
             ) : (
               <div className="empty big">
                 <h3>Ничего не нашли</h3>
@@ -175,18 +180,18 @@ export default function Home() {
             ['wrench', 'Сборка и проверка', 'Соберём ПК, установим систему и прогоним тесты на стабильность до отправки.'],
             ['headset', 'Поддержка 24/7', 'Отвечаем в чате и по телефону, поможем выбрать и решить любую проблему.'],
           ].map(([icon, t, d], i) => (
-            <li key={t}>
+            <ScrollReveal as="li" key={t} variants={fadeUp} transition={{ duration: 0.5, ease: 'easeOut', delay: i * 0.08 }} viewOptions={{ amount: 0.3 }} once>
               <span className="mono num">0{i + 1}</span>
               <Icon name={icon} size={24} strokeWidth={1.4} />
               <h3>{t}</h3>
               <p>{d}</p>
-            </li>
+            </ScrollReveal>
           ))}
         </ol>
       </section>
 
       <section id="business" className="container">
-        <div className="cta">
+        <ScrollReveal className="cta" variants={fadeUp} transition={{ duration: 0.6, ease: 'easeOut' }} viewOptions={{ amount: 0.2 }} once>
           <div>
             <h2>Опт и компьютерные клубы</h2>
             <p>Партии от 5 компьютеров: фиксируем цену, собираем одинаковые конфигурации, выезжаем на установку и настройку. Для офисов и игровых клубов.</p>
@@ -198,7 +203,7 @@ export default function Home() {
             </ul>
           </div>
           <LeadForm />
-        </div>
+        </ScrollReveal>
       </section>
     </>
   )
