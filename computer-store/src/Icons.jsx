@@ -17,6 +17,10 @@ const paths = {
   wrench: <path d="M14.7 6.3a4 4 0 005 5l-9.4 9.4a2.1 2.1 0 01-3-3l9.4-9.4a4 4 0 00-2-2z" />,
   headset: <><path d="M4 14v-2a8 8 0 0116 0v2" /><rect x="3" y="14" width="4" height="6" rx="1.5" /><rect x="17" y="14" width="4" height="6" rx="1.5" /></>,
   check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
+  sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>,
+  moon: <path d="M20 14.5A8 8 0 019.5 4 8 8 0 1020 14.5z" />,
+  scale: <><path d="M12 4v16M6 20h12M4 8h16" /><path d="M7 8l-3 7a3 3 0 006 0zM17 8l-3 7a3 3 0 006 0z" /></>,
+  back: <path d="M15 5l-7 7 7 7" />,
   trash: <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />,
 }
 
