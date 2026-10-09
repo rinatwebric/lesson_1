@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Icon from '../Icons.jsx'
 import ScrollReveal, { fadeUp } from '../components/ScrollReveal.jsx'
+import GlowHorizon from '../components/GlowHorizon.jsx'
+import TypedHeadline from '../components/TypedHeadline.jsx'
 import ProductCard, { AddButton } from '../components/ProductCard.jsx'
 import { categories, products, featured, byId, discount, fmt, MAX_PRICE } from '../data'
 
@@ -83,22 +85,25 @@ export default function Home() {
   return (
     <>
       <section className="hero">
+        <GlowHorizon variant="top" />
         <div className="container hero-in">
-          <div className="hero-copy">
-            <h1>Компьютеры и комплектующие с гарантией 2 года</h1>
-            <p>Подберём сборку под ваш бюджет, проверим её на стенде и привезём на следующий день.</p>
-            <div className="hero-cta">
-              <a className="btn btn-lg" href="#catalog">Открыть каталог</a>
-              <Link className="btn btn-lg btn-ghost" to="/configurator">Собрать ПК</Link>
-            </div>
-            <dl className="facts">
-              <div><dt>Товаров в наличии</dt><dd>12 000+</dd></div>
-              <div><dt>Доставка</dt><dd>от 1 дня</dd></div>
-              <div><dt>Возврат</dt><dd>14 дней</dd></div>
-            </dl>
+          <TypedHeadline prefix="Компьютеры и комплектующие" phrases={['для игр', 'для работы', 'для ПК-клубов']} />
+          <p className="hero-lead">Подберём сборку под ваш бюджет, проверим её на стенде и привезём на следующий день. Гарантия 2 года.</p>
+          <div className="hero-cta">
+            <a className="btn btn-lg" href="#catalog">Открыть каталог</a>
+            <Link className="btn btn-lg btn-ghost" to="/configurator">Собрать ПК</Link>
           </div>
-          <ScrollReveal as="aside" className="sheet" aria-label="Сборка недели" variants={{ hidden: { opacity: 0, x: 32 }, visible: { opacity: 1, x: 0 } }} transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 }} once>
-            <div className="sheet-head"><span>Сборка недели</span><span className="mono">арт. 0{feat.id}</span></div>
+          <dl className="facts">
+            <div><dt>Товаров в наличии</dt><dd>12 000+</dd></div>
+            <div><dt>Доставка</dt><dd>от 1 дня</dd></div>
+            <div><dt>Возврат</dt><dd>14 дней</dd></div>
+          </dl>
+        </div>
+      </section>
+
+      <section className="container featured" aria-label="Сборка недели">
+        <ScrollReveal as="aside" className="sheet" aria-label="Сборка недели" variants={fadeUp} transition={{ duration: 0.6, ease: 'easeOut' }} viewOptions={{ amount: 0.25 }} once>
+          <div className="sheet-head"><span>Сборка недели</span><span className="mono">арт. 0{feat.id}</span></div>
             <h2>{feat.name}</h2>
             <dl className="sheet-rows">
               {featured.rows.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
@@ -110,8 +115,7 @@ export default function Home() {
               </div>
               <AddButton id={feat.id} large />
             </div>
-          </ScrollReveal>
-        </div>
+        </ScrollReveal>
       </section>
 
       <section id="catalog" className="container catalog">
