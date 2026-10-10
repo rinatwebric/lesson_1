@@ -25,7 +25,7 @@ export default function Product() {
   return (
     <div className="container page">
       <nav className="crumbs" aria-label="Навигация по разделам">
-        <Link to="/#catalog"><Icon name="back" size={16} /> Каталог</Link>
+        <Link to={p.group ? '/catalog' : '/#catalog'}><Icon name="back" size={16} /> Каталог</Link>
         <span aria-hidden="true">/</span>
         <span>{catName(p.cat)}</span>
       </nav>

@@ -7,6 +7,7 @@ import Home from './pages/Home.jsx'
 import Product from './pages/Product.jsx'
 import Compare from './pages/Compare.jsx'
 import Configurator from './pages/Configurator.jsx'
+import Catalog from './pages/Catalog.jsx'
 import { byId } from './data'
 import { useStore } from './store.jsx'
 
@@ -26,7 +27,7 @@ function Header() {
       <div className="container nav-in">
         <Link className="logo" to="/" aria-label="BYTE, на главную">BYTE<i /></Link>
         <nav className="nav-links" aria-label="Основная">
-          <Link to="/#catalog">Каталог</Link>
+          <NavLink to="/catalog">Каталог</NavLink>
           <NavLink to="/configurator">Конфигуратор</NavLink>
           <Link to="/#service">Сервис</Link>
           <Link to="/#business">Опт и ПК-клубы</Link>
@@ -78,6 +79,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<Product />} />
+          <Route path="/catalog" element={<Catalog />} />
           <Route path="/compare" element={<Compare />} />
           <Route path="/configurator" element={<Configurator />} />
           <Route path="*" element={<div className="container page"><div className="empty big"><h1 className="h2">Страница не найдена</h1><Link className="btn" to="/">На главную</Link></div></div>} />

@@ -2,11 +2,14 @@ import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import Icon from '../Icons.jsx'
 import { catName, discount, fmt } from '../data'
+import ProductArt from './ProductArt.jsx'
 import { useStore } from '../store.jsx'
 
 export function ProductVisual({ p, size = 72 }) {
   return p.image ? (
     <img src={p.image} alt={p.name} loading="lazy" width="400" height="300" />
+  ) : p.art ? (
+    <ProductArt art={p.art} />
   ) : (
     <Icon name={p.cat} size={size} strokeWidth={1} />
   )

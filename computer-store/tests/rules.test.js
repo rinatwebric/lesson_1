@@ -73,3 +73,17 @@ test('summarize reports missing parts and totals', () => {
   assert.equal(s.total, byId(10).price)
   assert.equal(s.missing.length, SLOTS.filter((x) => x.required).length - 1)
 })
+
+test('showcase catalog: 12 products, two per group, all with art and specs', () => {
+  const shop = products.filter((p) => p.group)
+  assert.equal(shop.length, 12)
+  const counts = {}
+  for (const p of shop) counts[p.group] = (counts[p.group] ?? 0) + 1
+  assert.deepEqual(Object.values(counts), [2, 2, 2, 2, 2, 2])
+  for (const p of shop) {
+    assert.ok(p.art, p.name)
+    assert.ok(p.highlights.length >= 2 && p.highlights.length <= 3, p.name)
+    assert.equal(typeof p.popularity, 'number', p.name)
+  }
+  assert.equal(new Set(products.map((p) => p.id)).size, products.length)
+})
