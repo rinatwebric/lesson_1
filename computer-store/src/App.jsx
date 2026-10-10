@@ -25,26 +25,26 @@ function Header() {
   return (
     <header className="nav">
       <div className="container nav-in">
-        <Link className="logo" to="/" aria-label="BYTE, на главную">BYTE<i /></Link>
+        <Link className="logo" to="/" aria-label="nexus, на главную">nexus<i>.</i></Link>
         <nav className="nav-links" aria-label="Основная">
           <NavLink to="/catalog">Каталог</NavLink>
-          <NavLink to="/configurator">Конфигуратор</NavLink>
+          <Link to="/#build">Сборка на заказ</Link>
           <Link to="/#service">Сервис</Link>
-          <Link to="/#business">Опт и ПК-клубы</Link>
-          <a href="#contacts">Контакты</a>
+          <Link to="/#contacts">Контакты</Link>
         </nav>
         <div className="nav-actions">
-          <button className="icon-btn bordered" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему'}>
+          <button className="icon-btn" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему'}>
             <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={20} />
           </button>
-          <NavLink to="/compare" className="icon-btn bordered pos-rel" aria-label={`Сравнение, товаров: ${compareIds.length}`}>
-            <Icon name="scale" size={20} />
-            {compareIds.length > 0 && <span className="cart-count" key={compareIds.length}>{compareIds.length}</span>}
-          </NavLink>
+          {compareIds.length > 0 && (
+            <NavLink to="/compare" className="icon-btn pos-rel" aria-label={`Сравнение, товаров: ${compareIds.length}`}>
+              <Icon name="scale" size={20} />
+              <span className="mini-count" key={compareIds.length}>{compareIds.length}</span>
+            </NavLink>
+          )}
           <button className="cart-btn" onClick={openCart} aria-label={`Корзина, товаров: ${cart.count}`}>
-            <Icon name="cart" />
-            <span className="cart-label">Корзина</span>
-            {cart.count > 0 && <span className="cart-count" key={cart.count}>{cart.count}</span>}
+            Корзина
+            <span className="cart-count" key={cart.count}>{cart.count}</span>
           </button>
         </div>
       </div>
@@ -86,16 +86,11 @@ export default function App() {
         </Routes>
       </main>
 
-      <footer id="contacts" className="footer">
+      <footer className="footer">
         <div className="container foot-in">
-          <div>
-            <Link className="logo" to="/" aria-label="BYTE, на главную">BYTE<i /></Link>
-            <p>Магазин компьютеров и комплектующих.</p>
-          </div>
-          <div><h3>Контакты</h3><p>+7 800 555-35-35</p><p>hello@byte-shop.example</p></div>
-          <div><h3>Магазин</h3><p>Москва, ул. Технопарковая, 12</p><p>Ежедневно, 10:00–21:00</p></div>
+          <Link className="logo" to="/" aria-label="nexus, на главную">nexus<i>.</i></Link>
+          <p>© 2026 Nexus. Компьютеры премиум-класса.</p>
         </div>
-        <div className="container copy">© 2026 BYTE. Учебный проект.</div>
       </footer>
 
       <CompareBar />

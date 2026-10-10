@@ -87,11 +87,12 @@ export async function handleLead(body, env = process.env) {
   const phone = clean(body?.phone, 30)
   const name = clean(body?.name, 80)
   const topic = TOPICS[body?.topic] ?? TOPICS.other
+  const comment = clean(body?.comment, 500)
   if (!/^[\d\s()+-]+$/.test(phone) || phone.replace(/\D/g, '').length < 10) {
     return { status: 400, json: { ok: false, errors: { phone: 'Введите номер полностью, например +7 900 123-45-67.' } } }
   }
 
-  const text = [`<b>📞 Заявка на звонок</b>`, '', `<b>Тема:</b> ${esc(topic)}`, name && `<b>Имя:</b> ${esc(name)}`, `<b>Телефон:</b> ${esc(phone)}`]
+  const text = [`<b>📞 Заявка на звонок</b>`, '', `<b>Тема:</b> ${esc(topic)}`, name && `<b>Имя:</b> ${esc(name)}`, `<b>Телефон:</b> ${esc(phone)}`, comment && `<b>Сообщение:</b> ${esc(comment)}`]
     .filter(Boolean).join('\n')
   const failed = await sendTelegram(text, env)
   return failed ?? { status: 200, json: { ok: true } }

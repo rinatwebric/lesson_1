@@ -17,7 +17,7 @@ function useStored(key, initial) {
 export function StoreProvider({ children }) {
   const [items, setItems] = useStored('cart', {})
   const [compareIds, setCompareIds] = useStored('compare', [])
-  const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || 'dark')
+  const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || 'light')
   const [cartOpen, setCartOpen] = useState(false)
   const [announce, setAnnounce] = useState('')
 

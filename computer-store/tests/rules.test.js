@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { PRESETS, SLOTS, check, optionErrors, summarize } from '../src/configurator/rules.js'
 
 const { products } = JSON.parse(readFileSync(new URL('../src/data/products.json', import.meta.url)))
@@ -74,16 +74,30 @@ test('summarize reports missing parts and totals', () => {
   assert.equal(s.missing.length, SLOTS.filter((x) => x.required).length - 1)
 })
 
-test('showcase catalog: 12 products, two per group, all with art and specs', () => {
+test('showcase catalog: 12 products, two per group, each with an existing photo', () => {
   const shop = products.filter((p) => p.group)
   assert.equal(shop.length, 12)
   const counts = {}
   for (const p of shop) counts[p.group] = (counts[p.group] ?? 0) + 1
   assert.deepEqual(Object.values(counts), [2, 2, 2, 2, 2, 2])
   for (const p of shop) {
-    assert.ok(p.art, p.name)
+    assert.ok(existsSync(new URL(`../public${p.image}`, import.meta.url)), `${p.name}: ${p.image}`)
     assert.ok(p.highlights.length >= 2 && p.highlights.length <= 3, p.name)
     assert.equal(typeof p.popularity, 'number', p.name)
   }
   assert.equal(new Set(products.map((p) => p.id)).size, products.length)
+})
+
+test('lead notification includes the visitor message', async () => {
+  const { handleLead } = await import('../server/order.js')
+  const sent = []
+  const real = globalThis.fetch
+  globalThis.fetch = async (_url, init) => { sent.push(JSON.parse(init.body).text); return { ok: true, text: async () => '' } }
+  try {
+    const res = await handleLead({ phone: '+7 900 123-45-67', name: 'Анна', comment: 'Нужен ПК для монтажа <4K>' }, { TELEGRAM_BOT_TOKEN: 'x', TELEGRAM_CHAT_ID: '1' })
+    assert.equal(res.status, 200)
+    assert.match(sent[0], /Нужен ПК для монтажа &lt;4K&gt;/)
+  } finally {
+    globalThis.fetch = real
+  }
 })
