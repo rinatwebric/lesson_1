@@ -1,6 +1,8 @@
 import { useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { AddButton, CompareToggle, FavoriteButton, ProductVisual, RatingLine } from '../components/ProductCard.jsx'
+import { AddButton, CompareToggle, FavoriteButton, RatingLine } from '../components/ProductCard.jsx'
+import Gallery from '../components/Gallery.jsx'
+import ScrollReveal, { fadeUp } from '../components/ScrollReveal.jsx'
 import Reviews from '../components/Reviews.jsx'
 import ShopCard from '../components/ShopCard.jsx'
 import { badgeOf, byId, fmt, groupName, labelOf, products, shopProducts } from '../data'
@@ -44,11 +46,10 @@ export default function Product() {
       </nav>
 
       <div className="product">
-        <div className="product-visual">
-          <ProductVisual p={p} size={140} />
+        <Gallery key={p.id} p={p}>
           {badge && <span className="shop-badge">{badge}</span>}
           <FavoriteButton id={p.id} name={p.name} />
-        </div>
+        </Gallery>
 
         <div className="product-main">
           <p className="shop-cat">{labelOf(p)}</p>
@@ -90,7 +91,13 @@ export default function Product() {
             <h2 id="similar-title">Похожие товары</h2>
             <Link className="underlined" to="/catalog">Весь каталог</Link>
           </div>
-          <div className="shop-grid">{similar.map((x) => <ShopCard key={x.id} p={x} compact />)}</div>
+          <div className="shop-grid">
+            {similar.map((x, i) => (
+              <ScrollReveal key={x.id} className="shop-cell" variants={fadeUp} transition={{ duration: 0.6, delay: i * 0.1, ease: 'easeOut' }} viewOptions={{ amount: 0.2 }} once>
+                <ShopCard p={x} compact />
+              </ScrollReveal>
+            ))}
+          </div>
         </section>
       )}
     </div>

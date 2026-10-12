@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from 'motion/react'
 import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import Icon from '../Icons.jsx'
@@ -72,7 +73,9 @@ export default function Catalog() {
         </label>
       </div>
 
+      <AnimatePresence initial={false}>
       {open && (
+        <motion.div className="filters-wrap" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.35, ease: [0.2, 0.7, 0.2, 1] }}>
         <div className="filters" id="filters">
           <fieldset className="f-group">
             <legend>Цена, ₽</legend>
@@ -100,16 +103,30 @@ export default function Catalog() {
           </fieldset>
           <button type="button" className="link-btn f-reset" onClick={() => setFilters(DEFAULT_FILTERS)} disabled={!active}>Сбросить фильтры</button>
         </div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
       {list.length ? (
-        <div className="shop-grid">{list.map((p, i) => <ShopCard key={p.id} p={p} index={i} />)}</div>
+        <div className="shop-grid">
+          <AnimatePresence mode="popLayout" initial>
+            {list.map((p, i) => (
+              <motion.div
+                key={p.id} className="shop-cell" layout
+                initial={{ opacity: 0, y: 24, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.45, delay: Math.min(i, 8) * 0.045, ease: [0.2, 0.7, 0.2, 1] }}
+              >
+                <ShopCard p={p} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
       ) : (
-        <div className="shop-empty">
+        <motion.div className="shop-empty" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
           <h2>Ничего не нашли</h2>
           <p>Попробуйте изменить фильтры, запрос или категорию.</p>
           <button className="btn" onClick={reset}>Сбросить</button>
-        </div>
+        </motion.div>
       )}
 
       <section className="banner" aria-labelledby="banner-title">

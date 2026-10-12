@@ -1,3 +1,4 @@
+import { motion } from 'motion/react'
 import { useState } from 'react'
 import { Stars, StarInput } from './Stars.jsx'
 import { reviewWord } from '../data/reviews.js'
@@ -62,7 +63,7 @@ export default function Reviews({ id }) {
               {dist.map((n, i) => (
                 <li key={i}>
                   <span>{5 - i}</span>
-                  <i><b style={{ width: `${(n / count) * 100}%` }} /></i>
+                  <i><motion.b style={{ width: `${(n / count) * 100}%`, transformOrigin: 'left' }} initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1 + i * 0.07, ease: [0.2, 0.7, 0.2, 1] }} /></i>
                   <span>{n}</span>
                 </li>
               ))}

@@ -28,6 +28,7 @@ const paths = {
   scale: <><path d="M12 4v16M6 20h12M4 8h16" /><path d="M7 8l-3 7a3 3 0 006 0zM17 8l-3 7a3 3 0 006 0z" /></>,
   heart: <path d="M12 20.5S3.5 15.4 3.5 9.4A4.6 4.6 0 0112 7a4.6 4.6 0 018.5 2.4c0 6-8.5 11.1-8.5 11.1z" />,
   sliders: <path d="M4 7h9M17 7h3M4 17h3M11 17h9M13 4v6M7 14v6" />,
+  menu: <path d="M4 8h16M4 16h16" />,
   back: <path d="M15 5l-7 7 7 7" />,
   trash: <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />,
 }

@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from 'motion/react'
 import { Link } from 'react-router-dom'
 import ShopCard from '../components/ShopCard.jsx'
 import { byId } from '../data'
@@ -13,7 +14,19 @@ export default function Favorites() {
         <p>{list.length ? 'Товары, к которым хочется вернуться' : 'Здесь появятся товары, которые вы отметите сердечком'}</p>
       </header>
       {list.length ? (
-        <div className="shop-grid fav-grid">{list.map((p, i) => <ShopCard key={p.id} p={p} index={i} />)}</div>
+        <div className="shop-grid">
+          <AnimatePresence mode="popLayout">
+            {list.map((p, i) => (
+              <motion.div
+                key={p.id} className="shop-cell" layout
+                initial={{ opacity: 0, y: 24, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.45, delay: Math.min(i, 8) * 0.045, ease: [0.2, 0.7, 0.2, 1] }}
+              >
+                <ShopCard p={p} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
       ) : (
         <div className="shop-empty">
           <h2>Пока пусто</h2>

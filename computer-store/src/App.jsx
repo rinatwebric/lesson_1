@@ -1,4 +1,5 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import Icon from './Icons.jsx'
 import CartDrawer from './components/CartDrawer.jsx'
@@ -21,18 +22,37 @@ function ScrollManager() {
   return null
 }
 
+const NAV = [
+  ['/catalog', 'Каталог', true],
+  ['/configurator', 'Конфигуратор', true],
+  ['/#service', 'Сервис'],
+  ['/#contacts', 'Контакты'],
+]
+
+function NavItems({ onClick }) {
+  return NAV.map(([to, label, route]) =>
+    route ? <NavLink key={to} to={to} onClick={onClick}>{label}</NavLink> : <Link key={to} to={to} onClick={onClick}>{label}</Link>)
+}
+
 function Header() {
   const { cart, compareIds, favoriteIds, theme, toggleTheme, openCart } = useStore()
+  const [menu, setMenu] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const { pathname } = useLocation()
+
+  useEffect(() => setMenu(false), [pathname])
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   return (
-    <header className="nav">
+    <header className={`nav ${scrolled ? 'scrolled' : ''}`}>
       <div className="container nav-in">
         <Link className="logo" to="/" aria-label="nexus, на главную">nexus<i>.</i></Link>
-        <nav className="nav-links" aria-label="Основная">
-          <NavLink to="/catalog">Каталог</NavLink>
-          <Link to="/#build">Сборка на заказ</Link>
-          <Link to="/#service">Сервис</Link>
-          <Link to="/#contacts">Контакты</Link>
-        </nav>
+        <nav className="nav-links" aria-label="Основная"><NavItems /></nav>
         <div className="nav-actions">
           <button className="icon-btn" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему'}>
             <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={20} />
@@ -51,8 +71,22 @@ function Header() {
             Корзина
             <span className="cart-count" key={cart.count}>{cart.count}</span>
           </button>
+          <button className="icon-btn menu-btn" onClick={() => setMenu((m) => !m)} aria-expanded={menu} aria-controls="mobile-menu" aria-label={menu ? 'Закрыть меню' : 'Открыть меню'}>
+            <Icon name={menu ? 'close' : 'menu'} size={22} />
+          </button>
         </div>
       </div>
+      <AnimatePresence initial={false}>
+        {menu && (
+          <motion.nav
+            id="mobile-menu" className="mobile-menu" aria-label="Меню"
+            initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.35, ease: [0.2, 0.7, 0.2, 1] }}
+          >
+            <div className="container mobile-menu-in"><NavItems onClick={() => setMenu(false)} /></div>
+          </motion.nav>
+        )}
+      </AnimatePresence>
     </header>
   )
 }
@@ -75,13 +109,14 @@ function CompareBar() {
 
 export default function App() {
   const { announce } = useStore()
+  const location = useLocation()
   return (
     <>
       <a className="skip" href="#main">К содержимому</a>
       <ScrollManager />
       <Header />
-      <main id="main">
-        <Routes>
+      <motion.main id="main" key={location.pathname} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: [0.2, 0.7, 0.2, 1] }}>
+        <Routes location={location}>
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<Product />} />
           <Route path="/catalog" element={<Catalog />} />
@@ -90,11 +125,17 @@ export default function App() {
           <Route path="/configurator" element={<Configurator />} />
           <Route path="*" element={<div className="container page"><div className="empty big"><h1 className="h2">Страница не найдена</h1><Link className="btn" to="/">На главную</Link></div></div>} />
         </Routes>
-      </main>
+      </motion.main>
 
       <footer className="footer">
         <div className="container foot-in">
           <Link className="logo" to="/" aria-label="nexus, на главную">nexus<i>.</i></Link>
+          <nav className="foot-links" aria-label="Подвал">
+            <Link to="/catalog">Каталог</Link>
+            <Link to="/configurator">Конфигуратор</Link>
+            <Link to="/#faq">Вопросы и ответы</Link>
+            <Link to="/#contacts">Контакты</Link>
+          </nav>
           <p>© 2026 Nexus. Компьютеры премиум-класса.</p>
         </div>
       </footer>

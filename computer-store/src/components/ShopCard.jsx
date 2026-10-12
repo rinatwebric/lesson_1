@@ -2,11 +2,11 @@ import { Link } from 'react-router-dom'
 import { AddButton, FavoriteButton, ProductVisual, RatingLine } from './ProductCard.jsx'
 import { badgeOf, fmt, labelOf } from '../data'
 
-export default function ShopCard({ p, compact = false, index = 0 }) {
+export default function ShopCard({ p, compact = false }) {
   const badge = badgeOf(p)
   const to = `/product/${p.id}`
   return (
-    <article className={`shop-card ${compact ? 'compact' : ''}`} style={{ animationDelay: `${Math.min(index, 6) * 50}ms` }}>
+    <article className={`shop-card ${compact ? 'compact' : ''}`}>
       <Link to={to} className="shop-photo" tabIndex={compact ? undefined : -1} aria-hidden={compact ? undefined : 'true'} aria-label={compact ? p.name : undefined}>
         <ProductVisual p={p} />
         {badge && !compact && <span className="shop-badge">{badge}</span>}

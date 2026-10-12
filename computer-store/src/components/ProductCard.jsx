@@ -39,12 +39,13 @@ export function CompareToggle({ id, name }) {
 
 export function FavoriteButton({ id, name, className = '' }) {
   const { favoriteIds, toggleFavorite } = useStore()
+  const [pop, setPop] = useState(false)
   const on = favoriteIds.includes(id)
   return (
     <button
-      type="button" className={`fav-btn ${on ? 'on' : ''} ${className}`} aria-pressed={on}
+      type="button" className={`fav-btn ${on ? 'on' : ''} ${on && pop ? 'pop' : ''} ${className}`} aria-pressed={on}
       aria-label={on ? `Убрать из избранного: ${name}` : `В избранное: ${name}`}
-      onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite(id) }}
+      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setPop(!on); toggleFavorite(id) }}
     >
       <Icon name="heart" size={20} />
     </button>

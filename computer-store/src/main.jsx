@@ -1,4 +1,5 @@
 import { createRoot } from 'react-dom/client'
+import { MotionConfig } from 'motion/react'
 import { BrowserRouter } from 'react-router-dom'
 import '@fontsource/manrope/400.css'
 import '@fontsource/manrope/500.css'
@@ -12,7 +13,9 @@ import './styles.css'
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <StoreProvider>
-      <App />
+      <MotionConfig reducedMotion="user">
+        <App />
+      </MotionConfig>
     </StoreProvider>
   </BrowserRouter>,
 )

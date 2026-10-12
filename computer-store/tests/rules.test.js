@@ -81,7 +81,8 @@ test('showcase catalog: 12 products, two per group, each with an existing photo'
   for (const p of shop) counts[p.group] = (counts[p.group] ?? 0) + 1
   assert.deepEqual(Object.values(counts), [2, 2, 2, 2, 2, 2])
   for (const p of shop) {
-    assert.ok(existsSync(new URL(`../public${p.image}`, import.meta.url)), `${p.name}: ${p.image}`)
+    assert.ok(p.images?.includes(p.image), p.name)
+    for (const src of p.images) assert.ok(existsSync(new URL(`../public${src}`, import.meta.url)), `${p.name}: ${src}`)
     assert.ok(p.highlights.length >= 2 && p.highlights.length <= 3, p.name)
     assert.equal(typeof p.popularity, 'number', p.name)
   }
@@ -120,4 +121,13 @@ test('rating stats and filters', async () => {
   assert.ok(applyFilters(shop, { ...DEFAULT_FILTERS, sale: true }).every((p) => p.old))
   assert.ok(applyFilters(shop, { ...DEFAULT_FILTERS, isNew: true }).every((p) => p.isNew))
   assert.equal(countFilters({ ...DEFAULT_FILTERS, min: '1', sale: true }), 2)
+})
+
+test('performance scores grow with better parts', async () => {
+  const { scores, PRESETS } = await import('../src/configurator/rules.js')
+  const of = (id) => scores(Object.fromEntries(Object.entries(PRESETS.find((p) => p.id === id).parts).map(([k, v]) => [k, byId(v)])))
+  assert.equal(scores({}), null)
+  assert.ok(of('max').gaming > of('gaming').gaming && of('gaming').gaming > of('office').gaming)
+  assert.ok(of('max').work > of('office').work)
+  assert.ok(of('max').gaming <= 100)
 })

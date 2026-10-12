@@ -1,12 +1,12 @@
 export const SLOTS = [
   { id: 'cpu', cat: 'cpu', label: 'Процессор', required: true },
   { id: 'motherboard', cat: 'motherboards', label: 'Материнская плата', required: true },
-  { id: 'ram', cat: 'ram', label: 'Оперативная память', required: true },
   { id: 'gpu', cat: 'gpu', label: 'Видеокарта', required: false, none: 'Без видеокарты (графика процессора)' },
-  { id: 'storage', cat: 'storage', label: 'Накопитель M.2', required: true, filter: (p) => p.compat?.m2 },
+  { id: 'ram', cat: 'ram', label: 'Оперативная память', required: true },
+  { id: 'storage', cat: 'storage', label: 'Накопитель', required: true, filter: (p) => p.compat?.m2 },
+  { id: 'cooler', cat: 'cooling', label: 'Охлаждение', required: true },
   { id: 'psu', cat: 'psu', label: 'Блок питания', required: true },
   { id: 'case', cat: 'cases', label: 'Корпус', required: true },
-  { id: 'cooler', cat: 'cooling', label: 'Охлаждение процессора', required: true },
 ]
 
 const OTHER_LOAD_W = 100
@@ -88,8 +88,24 @@ export function optionErrors(slotId, product, parts) {
   return check({ ...parts, [slotId]: product }).filter((i) => i.level === 'error' && i.slots.includes(slotId))
 }
 
+const IGPU = { gaming: 12, work: 10 }
+const RAM_GAMING = { 16: 70, 32: 90, 64: 100 }
+const RAM_WORK = { 16: 40, 32: 70, 64: 100 }
+
+// Rough 0-100 estimates from part ratings; null until a CPU is chosen.
+export function scores(parts) {
+  const { cpu, gpu, ram } = parts
+  if (!cpu?.compat?.perf) return null
+  const g = gpu?.compat?.perf ?? IGPU
+  const gb = ram?.compat?.gb
+  const gaming = 0.55 * g.gaming + 0.3 * cpu.compat.perf.gaming + 0.15 * (RAM_GAMING[gb] ?? 50)
+  const work = 0.3 * g.work + 0.45 * cpu.compat.perf.work + 0.25 * (RAM_WORK[gb] ?? 30)
+  return { gaming: Math.round(gaming), work: Math.round(work) }
+}
+
 export const PRESETS = [
   { id: 'gaming', name: 'Игровой 1440p', note: 'Ryzen 7 7800X3D и RTX 4070 Super', parts: { cpu: 10, motherboard: 23, ram: 28, gpu: 7, storage: 16, psu: 32, case: 35, cooler: 38 } },
   { id: 'office', name: 'Офисный', note: 'Тихий и компактный, без видеокарты', parts: { cpu: 12, motherboard: 24, ram: 27, storage: 41, psu: 31, case: 36, cooler: 38 } },
   { id: 'club', name: 'Для ПК-клуба', note: 'Core i7 и RX 7800 XT, запас по питанию', parts: { cpu: 11, motherboard: 25, ram: 28, gpu: 8, storage: 16, psu: 33, case: 35, cooler: 40 } },
+  { id: 'max', name: 'Максимум', note: 'Ryzen 7 7800X3D и RTX 4090', parts: { cpu: 10, motherboard: 23, ram: 29, gpu: 9, storage: 17, psu: 34, case: 37, cooler: 40 } },
 ]

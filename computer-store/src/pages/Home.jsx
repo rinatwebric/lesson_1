@@ -1,11 +1,19 @@
 import { Link } from 'react-router-dom'
 import ScrollReveal, { fadeUp } from '../components/ScrollReveal.jsx'
+import CountUp from '../components/CountUp.jsx'
+import Faq from '../components/Faq.jsx'
 import LeadForm from '../components/LeadForm.jsx'
+import { FAQ } from '../data/faq.js'
 
-const STATS = [['3 года', 'гарантия на сборки'], ['48 ч', 'сборка и тестирование'], ['0 ₽', 'доставка по городу'], ['24/7', 'поддержка']]
+const STATS = [
+  [<CountUp to={3} suffix=" года" />, 'гарантия на сборки'],
+  [<CountUp to={48} suffix=" ч" />, 'сборка и тестирование'],
+  ['0 ₽', 'доставка по городу'],
+  ['24/7', 'поддержка'],
+]
 const BIG = [
-  { to: '/catalog?group=laptops', img: '/products/laptop.jpg', title: 'Ноутбуки', text: 'Для работы, учёбы и творчества' },
-  { to: '/catalog?group=monitors', img: '/products/monitor.jpg', title: 'Рабочие места', text: 'Мониторы, клавиатуры, периферия' },
+  { to: '/catalog?group=laptops', img: '/products/laptop-air-open.jpg', title: 'Ноутбуки', text: 'Для работы, учёбы и творчества' },
+  { to: '/catalog?group=monitors', img: '/products/workspace.jpg', title: 'Рабочие места', text: 'Мониторы, клавиатуры, периферия' },
 ]
 const SMALL = [
   ['01', 'Игровые ПК', 'Тихие и холодные, с топовыми видеокартами.', 'gaming'],
@@ -31,7 +39,10 @@ export default function Home() {
       <section className="hero">
         <div className="container hero-in">
           <p className="eyebrow">Nexus Pro Series</p>
-          <h1>Мощность.<br />Без лишнего.</h1>
+          <h1>
+            <span className="h-line"><span>Мощность.</span></span>
+            <span className="h-line"><span>Без лишнего.</span></span>
+          </h1>
           <p className="hero-lead">Компьютеры, ноутбуки и рабочие станции, собранные с вниманием к каждой детали.</p>
           <div className="hero-cta">
             <Link className="btn btn-lg" to="/catalog">Смотреть каталог →</Link>
@@ -42,7 +53,11 @@ export default function Home() {
 
       <section className="stats" aria-label="Наши гарантии">
         <dl className="container stats-in">
-          {STATS.map(([v, l]) => <div key={l}><dt>{v}</dt><dd>{l}</dd></div>)}
+          {STATS.map(([v, l], i) => (
+            <ScrollReveal key={l} variants={fadeUp} transition={{ duration: 0.6, delay: i * 0.08, ease: 'easeOut' }} viewOptions={{ amount: 0.5 }} once>
+              <dt>{v}</dt><dd>{l}</dd>
+            </ScrollReveal>
+          ))}
         </dl>
       </section>
 
@@ -51,26 +66,28 @@ export default function Home() {
           <h2>Каталог</h2>
           <p>Только проверенные комплектующие и техника ведущих производителей.</p>
         </div>
-        <ScrollReveal {...reveal}>
-          <div className="tiles">
-            {BIG.map((t) => (
-              <Link key={t.to} to={t.to} className="tile">
+        <div className="tiles">
+            {BIG.map((t, i) => (
+              <ScrollReveal key={t.to} className="cell cell-big" variants={fadeUp} transition={{ duration: 0.7, delay: i * 0.1, ease: 'easeOut' }} viewOptions={{ amount: 0.15 }} once>
+              <Link to={t.to} className="tile">
                 <span className="tile-photo"><img src={t.img} alt="" loading="lazy" width="800" height="600" /></span>
                 <span className="tile-body">
                   <span><strong>{t.title}</strong><span>{t.text}</span></span>
                   <span className="tile-arrow" aria-hidden="true">→</span>
                 </span>
               </Link>
+              </ScrollReveal>
             ))}
-            {SMALL.map(([n, t, d, g]) => (
-              <Link key={g} to={`/catalog?group=${g}`} className="tile tile-small">
-                <span className="tile-num">{n}</span>
-                <strong>{t}</strong>
-                <span>{d}</span>
-              </Link>
+            {SMALL.map(([n, t, d, g], i) => (
+              <ScrollReveal key={g} className="cell cell-small" variants={fadeUp} transition={{ duration: 0.7, delay: 0.2 + i * 0.1, ease: 'easeOut' }} viewOptions={{ amount: 0.15 }} once>
+                <Link to={`/catalog?group=${g}`} className="tile tile-small">
+                  <span className="tile-num">{n}</span>
+                  <strong>{t}</strong>
+                  <span>{d}</span>
+                </Link>
+              </ScrollReveal>
             ))}
-          </div>
-        </ScrollReveal>
+        </div>
       </section>
 
       <section id="build" className="build">
@@ -86,10 +103,10 @@ export default function Home() {
           </ScrollReveal>
           <ol className="steps">
             {STEPS.map(([t, d], i) => (
-              <li key={t}>
+              <ScrollReveal as="li" key={t} variants={fadeUp} transition={{ duration: 0.6, delay: 0.1 + i * 0.1, ease: 'easeOut' }} viewOptions={{ amount: 0.3 }} once>
                 <span className="step-num">0{i + 1}</span>
                 <span><strong>{t}</strong><span>{d}</span></span>
-              </li>
+              </ScrollReveal>
             ))}
           </ol>
         </div>
@@ -98,8 +115,23 @@ export default function Home() {
       <section id="service" className="container why">
         <h2>Почему выбирают<br />Nexus</h2>
         <ul className="why-list">
-          {WHY.map(([t, d]) => <li key={t}><strong>{t}</strong><span>{d}</span></li>)}
+          {WHY.map(([t, d], i) => (
+            <ScrollReveal as="li" key={t} variants={fadeUp} transition={{ duration: 0.6, delay: i * 0.1, ease: 'easeOut' }} viewOptions={{ amount: 0.3 }} once>
+              <strong>{t}</strong><span>{d}</span>
+            </ScrollReveal>
+          ))}
         </ul>
+      </section>
+
+      <section id="faq" className="container faq">
+        <ScrollReveal {...reveal} className="faq-head">
+          <h2>Частые<br />вопросы</h2>
+          <p>Не нашли ответ? Напишите нам, и мы ответим в течение 15 минут.</p>
+          <Link className="btn btn-ghost" to="/#contacts">Задать вопрос</Link>
+        </ScrollReveal>
+        <ScrollReveal {...reveal} transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}>
+          <Faq items={FAQ} />
+        </ScrollReveal>
       </section>
 
       <section id="contacts" className="container">
