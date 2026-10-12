@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { byId } from './data'
+import { ratingStats, seedReviews } from './data/reviews.js'
 
 const Ctx = createContext(null)
 export const useStore = () => useContext(Ctx)
@@ -17,6 +18,8 @@ function useStored(key, initial) {
 export function StoreProvider({ children }) {
   const [items, setItems] = useStored('cart', {})
   const [compareIds, setCompareIds] = useStored('compare', [])
+  const [favoriteIds, setFavoriteIds] = useStored('favorites', [])
+  const [userReviews, setUserReviews] = useStored('reviews', {})
   const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || 'light')
   const [cartOpen, setCartOpen] = useState(false)
   const [announce, setAnnounce] = useState('')
@@ -80,7 +83,23 @@ export function StoreProvider({ children }) {
     })
   }, [setCompareIds])
 
+  const toggleFavorite = useCallback((id) => {
+    setFavoriteIds((ids) => {
+      const on = ids.includes(id)
+      setAnnounce(`${byId(id)?.name}: ${on ? 'убрано из избранного' : 'добавлено в избранное'}`)
+      return on ? ids.filter((x) => x !== id) : [...ids, id]
+    })
+  }, [setFavoriteIds])
+
+  const reviewsOf = useCallback((id) => [...(userReviews[id] ?? []), ...(seedReviews[id] ?? [])], [userReviews])
+  const statsOf = useCallback((id) => ratingStats(reviewsOf(id), byId(id)?.rating ?? 0), [reviewsOf])
+  const addReview = useCallback((id, review) => {
+    setUserReviews((s) => ({ ...s, [id]: [{ ...review, id: `u${Date.now()}`, verified: false }, ...(s[id] ?? [])] }))
+    setAnnounce('Спасибо! Отзыв опубликован')
+  }, [setUserReviews])
+
   const value = {
+    favoriteIds: favoriteIds.filter((id) => byId(id)), toggleFavorite, reviewsOf, statsOf, addReview,
     cart, addToCart, addMany, changeQty, removeFromCart, clearCart,
     compareIds: compareIds.filter((id) => byId(id)), toggleCompare, clearCompare: () => setCompareIds([]),
     theme, toggleTheme: () => setTheme((t) => (t === 'dark' ? 'light' : 'dark')),

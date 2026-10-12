@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { AddButton, CompareToggle, ProductVisual } from '../components/ProductCard.jsx'
+import { AddButton, CompareToggle, FavoriteButton, ProductVisual, RatingLine } from '../components/ProductCard.jsx'
+import Reviews from '../components/Reviews.jsx'
 import ShopCard from '../components/ShopCard.jsx'
 import { badgeOf, byId, fmt, groupName, labelOf, products, shopProducts } from '../data'
 
@@ -46,11 +47,13 @@ export default function Product() {
         <div className="product-visual">
           <ProductVisual p={p} size={140} />
           {badge && <span className="shop-badge">{badge}</span>}
+          <FavoriteButton id={p.id} name={p.name} />
         </div>
 
         <div className="product-main">
           <p className="shop-cat">{labelOf(p)}</p>
           <h1>{p.name}</h1>
+          <a className="rating-link" href="#reviews"><RatingLine id={p.id} /></a>
           <p className="product-spec">{p.highlights.join(' · ')}</p>
           <p className="product-desc">{p.description}</p>
 
@@ -78,6 +81,8 @@ export default function Product() {
           {Object.entries(p.specs).map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
         </dl>
       </section>
+
+      <Reviews id={p.id} />
 
       {similar.length > 0 && (
         <section className="similar" aria-labelledby="similar-title">

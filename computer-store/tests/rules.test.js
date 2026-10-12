@@ -101,3 +101,23 @@ test('lead notification includes the visitor message', async () => {
     globalThis.fetch = real
   }
 })
+
+test('rating stats and filters', async () => {
+  const { ratingStats, seedReviews, reviewWord } = await import('../src/data/reviews.js')
+  const st = ratingStats([{ rating: 5 }, { rating: 4 }, { rating: 4 }])
+  assert.equal(st.count, 3)
+  assert.equal(st.avg.toFixed(2), '4.33')
+  assert.deepEqual(st.dist, [1, 2, 0, 0, 0])
+  assert.equal(ratingStats([], 4.2).avg, 4.2)
+  assert.deepEqual([1, 2, 5, 11, 21].map(reviewWord), ['1 отзыв', '2 отзыва', '5 отзывов', '11 отзывов', '21 отзыв'])
+  for (const p of products.filter((x) => x.group)) assert.ok(seedReviews[p.id]?.length >= 3, p.name)
+
+  const { applyFilters, countFilters, DEFAULT_FILTERS } = await import('../src/data/filters.js')
+  const shop = products.filter((p) => p.group)
+  assert.equal(applyFilters(shop, DEFAULT_FILTERS).length, 12)
+  assert.equal(countFilters(DEFAULT_FILTERS), 0)
+  assert.ok(applyFilters(shop, { ...DEFAULT_FILTERS, max: '20000' }).every((p) => p.price <= 20000))
+  assert.ok(applyFilters(shop, { ...DEFAULT_FILTERS, sale: true }).every((p) => p.old))
+  assert.ok(applyFilters(shop, { ...DEFAULT_FILTERS, isNew: true }).every((p) => p.isNew))
+  assert.equal(countFilters({ ...DEFAULT_FILTERS, min: '1', sale: true }), 2)
+})

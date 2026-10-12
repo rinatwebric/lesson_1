@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { AddButton, ProductVisual } from './ProductCard.jsx'
+import { AddButton, FavoriteButton, ProductVisual, RatingLine } from './ProductCard.jsx'
 import { badgeOf, fmt, labelOf } from '../data'
 
 export default function ShopCard({ p, compact = false, index = 0 }) {
@@ -11,9 +11,11 @@ export default function ShopCard({ p, compact = false, index = 0 }) {
         <ProductVisual p={p} />
         {badge && !compact && <span className="shop-badge">{badge}</span>}
       </Link>
+      <FavoriteButton id={p.id} name={p.name} />
       <div className="shop-body">
         <p className="shop-cat">{labelOf(p)}</p>
         <h3><Link to={to}>{p.name}</Link></h3>
+        <RatingLine id={p.id} />
         {!compact && <p className="shop-specs">{p.highlights.join(' · ')}</p>}
         <div className="shop-price">
           <strong>{fmt(p.price)}</strong>

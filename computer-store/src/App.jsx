@@ -8,6 +8,7 @@ import Product from './pages/Product.jsx'
 import Compare from './pages/Compare.jsx'
 import Configurator from './pages/Configurator.jsx'
 import Catalog from './pages/Catalog.jsx'
+import Favorites from './pages/Favorites.jsx'
 import { byId } from './data'
 import { useStore } from './store.jsx'
 
@@ -21,7 +22,7 @@ function ScrollManager() {
 }
 
 function Header() {
-  const { cart, compareIds, theme, toggleTheme, openCart } = useStore()
+  const { cart, compareIds, favoriteIds, theme, toggleTheme, openCart } = useStore()
   return (
     <header className="nav">
       <div className="container nav-in">
@@ -36,6 +37,10 @@ function Header() {
           <button className="icon-btn" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему'}>
             <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={20} />
           </button>
+          <NavLink to="/favorites" className="icon-btn pos-rel" aria-label={`Избранное, товаров: ${favoriteIds.length}`}>
+            <Icon name="heart" size={20} />
+            {favoriteIds.length > 0 && <span className="mini-count" key={favoriteIds.length}>{favoriteIds.length}</span>}
+          </NavLink>
           {compareIds.length > 0 && (
             <NavLink to="/compare" className="icon-btn pos-rel" aria-label={`Сравнение, товаров: ${compareIds.length}`}>
               <Icon name="scale" size={20} />
@@ -80,6 +85,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<Product />} />
           <Route path="/catalog" element={<Catalog />} />
+          <Route path="/favorites" element={<Favorites />} />
           <Route path="/compare" element={<Compare />} />
           <Route path="/configurator" element={<Configurator />} />
           <Route path="*" element={<div className="container page"><div className="empty big"><h1 className="h2">Страница не найдена</h1><Link className="btn" to="/">На главную</Link></div></div>} />
