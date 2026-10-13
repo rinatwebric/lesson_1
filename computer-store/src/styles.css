@@ -377,7 +377,8 @@ h1, h2, h3 { font-weight: 800; line-height: 1.05; letter-spacing: -.04em; }
   .nav-links { display: flex; }
   .nav-actions { justify-self: end; }
   .hero { min-height: max(640px, min(763px, calc(100svh - 64px))); align-items: center; padding: 72px 0; }
-  .hero::before { inset: 0; height: auto; background-position: 72% center; -webkit-mask-image: none; mask-image: none; }
+  .hero { background: linear-gradient(#b0a7a0 0%, #b3aaa3 20%, #bbb2ab 40%, #c8c1bb 60%, #e2ddd9 80%, #dcd7d3 100%); }
+  .hero::before { inset: 0 0 0 auto; height: 100%; aspect-ratio: 2400 / 1340; background: url('/products/hero.jpg') 0 0 / 100% 100% no-repeat; -webkit-mask-image: linear-gradient(to right, transparent, #000 22%); mask-image: linear-gradient(to right, transparent, #000 22%); transform-origin: 70% 60%; }
   .hero h1 { font-size: clamp(44px, 7.4vw, 96px); }
   .hero-lead { max-width: min(26em, 40vw); }
   .hero-in { width: min(1200px, 100% - 96px); }
