@@ -83,7 +83,7 @@ function Header() {
           <button className="icon-btn theme-btn" onClick={toggleTheme} aria-label={theme === 'dark' ? t('nav.themeLight') : t('nav.themeDark')}>
             <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={20} />
           </button>
-          <NavLink to="/favorites" className="icon-btn pos-rel" aria-label={t('nav.favorites', { n: favoriteIds.length })}>
+          <NavLink to="/favorites" className="icon-btn pos-rel nav-fav" aria-label={t('nav.favorites', { n: favoriteIds.length })}>
             <Icon name="heart" size={20} />
             {favoriteIds.length > 0 && <span className="mini-count" key={favoriteIds.length}>{favoriteIds.length}</span>}
           </NavLink>
@@ -111,6 +111,7 @@ function Header() {
           >
             <div className="container mobile-menu-in">
               <NavItems onClick={() => setMenu(false)} />
+              <Link to="/favorites" className="menu-compare menu-fav" onClick={() => setMenu(false)}>{t('nav.favoritesMenu', { n: favoriteIds.length })}</Link>
               {compareIds.length > 0 && <Link to="/compare" className="menu-compare" onClick={() => setMenu(false)}>{t('nav.compareMenu', { n: compareIds.length })}</Link>}
               <div className="menu-extra">
                 <button type="button" className="menu-theme" onClick={toggleTheme}>

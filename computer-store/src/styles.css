@@ -909,3 +909,16 @@ a, button, label, select { touch-action: manipulation; }
 .nf-text { max-width: 440px; color: var(--muted); font-size: 18px; }
 .nf-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 12px; }
 .foot-in p small { display: block; margin-top: 2px; font-size: 12px; opacity: .8; }
+
+/* Narrow phones: favorites moves into the menu so the header never overflows. */
+.menu-fav { display: none; }
+@media (max-width: 420px) {
+  .nav-fav { display: none; }
+  .menu-fav { display: block; }
+}
+@media (max-width: 350px) {
+  .nav-in { gap: 4px; }
+  .nav-actions .icon-btn { width: 38px; height: 38px; }
+  .cart-btn { gap: 6px; padding-left: 12px; }
+  .lang-switch button { min-width: 28px; padding: 0 6px; }
+}
