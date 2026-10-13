@@ -50,7 +50,7 @@ export default function Checkout() {
       })
       const data = await res.json().catch(() => ({}))
       if (res.ok && data.ok) {
-        setDone({ id: data.orderId, total: data.total ?? total, lines: cart.lines })
+        setDone({ id: data.orderId, total: data.total ?? total, lines: cart.lines, demo: !!data.demo })
         clearCart()
         window.scrollTo({ top: 0, behavior: 'smooth' })
         return
@@ -71,6 +71,7 @@ export default function Checkout() {
           <p className="eyebrow">{t('co.doneNumber', { id: done.id })}</p>
           <h1 className="h2">{t('co.doneTitle')}</h1>
           <p className="co-done-text">{t('co.doneText')}</p>
+          {done.demo && <p className="demo-note" role="note">{t('co.demoNote')}</p>}
           <ul className="co-done-lines">
             {done.lines.map(({ product: p, qty }) => (
               <li key={p.id}><span>{tp(p).name} <small>× {qty}</small></span><strong className="mono">{fmt(p.price * qty)}</strong></li>

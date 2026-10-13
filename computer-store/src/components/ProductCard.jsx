@@ -5,8 +5,9 @@ import { useLang } from '../i18n/index.jsx'
 import { Stars } from './Stars.jsx'
 
 export function ProductVisual({ p, size = 72 }) {
-  return p.image ? (
-    <img src={p.image} alt={p.name} loading="lazy" width="800" height="600" />
+  const [broken, setBroken] = useState(false)
+  return p.image && !broken ? (
+    <img src={p.image} alt={p.name} loading="lazy" width="800" height="600" onError={() => setBroken(true)} />
   ) : (
     <Icon name={p.cat} size={size} strokeWidth={1} />
   )

@@ -15,7 +15,7 @@ export default function LeadForm() {
     try {
       const res = await fetch('/api/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, topic: 'build', lang }) })
       const data = await res.json().catch(() => ({}))
-      if (res.ok && data.ok) { setForm({ name: '', phone: '', comment: '', website: '' }); setState({ status: 'sent', error: '' }); return }
+      if (res.ok && data.ok) { setForm({ name: '', phone: '', comment: '', website: '' }); setState({ status: data.demo ? 'demo' : 'sent', error: '' }); return }
       setState({ status: 'error', error: data.errors?.phone ?? fail })
     } catch {
       setState({ status: 'error', error: fail })
@@ -33,7 +33,7 @@ export default function LeadForm() {
       <input className="hp" tabIndex={-1} autoComplete="off" aria-hidden="true" value={form.website} onChange={set('website')} name="website" />
       <button className="btn btn-lg" disabled={state.status === 'sending'}>{state.status === 'sending' ? t('lead.sending') : t('lead.submit')}</button>
       <p id="lead-msg" className={state.status === 'error' ? 'msg-error' : 'msg-ok'} role="status">
-        {state.status === 'error' ? state.error : state.status === 'sent' ? t('lead.sent') : ''}
+        {state.status === 'error' ? state.error : state.status === 'sent' ? t('lead.sent') : state.status === 'demo' ? t('lead.demo') : ''}
       </p>
     </form>
   )

@@ -65,7 +65,8 @@ export function formatOrder({ name, phone, comment, delivery, payment = 'cash', 
 async function sendTelegram(text, env) {
   const token = env.TELEGRAM_BOT_TOKEN
   const chatId = env.TELEGRAM_CHAT_ID
-  if (!token || !chatId) return { status: 503, json: { ok: false, error: 'not_configured' } }
+  // No Telegram credentials: run as a demo (nothing is sent) so a public portfolio deploy still works end to end.
+  if (!token || !chatId) return { demo: true }
   try {
     const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
@@ -93,8 +94,9 @@ export async function handleOrder(body, env = process.env) {
 
   const orderId = newId()
   const failed = await sendTelegram(formatOrder(order, orderId), env)
+  const demo = failed?.demo === true
   const subtotal = order.items.reduce((sum, i) => sum + i.qty * i.product.price, 0)
-  return failed ?? { status: 200, json: { ok: true, orderId, total: subtotal + deliveryFee(order.delivery, subtotal) } }
+  return (!demo && failed) || { status: 200, json: { ok: true, orderId, demo, total: subtotal + deliveryFee(order.delivery, subtotal) } }
 }
 
 const TOPICS = { build: 'Сборка ПК под задачи', wholesale: 'Опт и ПК-клубы', other: 'Другое' }
@@ -113,5 +115,6 @@ export async function handleLead(body, env = process.env) {
   const text = [`<b>📞 Заявка на звонок</b>`, '', `<b>Тема:</b> ${esc(topic)}`, name && `<b>Имя:</b> ${esc(name)}`, `<b>Телефон:</b> ${esc(phone)}`, comment && `<b>Сообщение:</b> ${esc(comment)}`]
     .filter(Boolean).join('\n')
   const failed = await sendTelegram(text, env)
-  return failed ?? { status: 200, json: { ok: true } }
+  const demo = failed?.demo === true
+  return (!demo && failed) || { status: 200, json: { ok: true, demo } }
 }

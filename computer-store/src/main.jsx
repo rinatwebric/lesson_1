@@ -7,11 +7,13 @@ import '@fontsource/manrope/600.css'
 import '@fontsource/manrope/700.css'
 import '@fontsource/manrope/800.css'
 import App from './App.jsx'
+import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { LangProvider } from './i18n/index.jsx'
 import { StoreProvider } from './store.jsx'
 import './styles.css'
 
 createRoot(document.getElementById('root')).render(
+  <ErrorBoundary>
   <BrowserRouter>
     <LangProvider>
       <StoreProvider>
@@ -20,5 +22,6 @@ createRoot(document.getElementById('root')).render(
         </MotionConfig>
       </StoreProvider>
     </LangProvider>
-  </BrowserRouter>,
+  </BrowserRouter>
+  </ErrorBoundary>,
 )

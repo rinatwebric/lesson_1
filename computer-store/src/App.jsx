@@ -11,6 +11,8 @@ import Configurator from './pages/Configurator.jsx'
 import Catalog from './pages/Catalog.jsx'
 import Favorites from './pages/Favorites.jsx'
 import Checkout from './pages/Checkout.jsx'
+import Logo from './components/Logo.jsx'
+import ErrorBoundary from './components/ErrorBoundary.jsx'
 import NotFound from './pages/NotFound.jsx'
 import { byId } from './data'
 import { CONTACTS } from './data/contacts.js'
@@ -76,7 +78,7 @@ function Header() {
   return (
     <header className={`nav ${scrolled ? 'scrolled' : ''}`}>
       <div className="container nav-in">
-        <Link className="logo" to="/" aria-label={t('nav.home')}>nexus<i>.</i></Link>
+        <Logo />
         <nav className="nav-links" aria-label={t('nav.main')}><NavItems /></nav>
         <div className="nav-actions">
           <LangSwitch />
@@ -154,6 +156,7 @@ export default function App() {
       <ScrollManager />
       <Header />
       <motion.main id="main" key={location.pathname} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: [0.2, 0.7, 0.2, 1] }}>
+        <ErrorBoundary key={location.pathname}>
         <Routes location={location}>
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<Product />} />
@@ -164,11 +167,12 @@ export default function App() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </ErrorBoundary>
       </motion.main>
 
       <footer className="footer">
         <div className="container foot-in">
-          <Link className="logo" to="/" aria-label={t('nav.home')}>nexus<i>.</i></Link>
+          <Logo />
           <nav className="foot-links" aria-label={t('footer.nav')}>
             <Link to="/catalog">{t('footer.catalog')}</Link>
             <Link to="/configurator">{t('footer.configurator')}</Link>

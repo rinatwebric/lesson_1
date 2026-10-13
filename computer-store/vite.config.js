@@ -27,7 +27,17 @@ function devApi(env) {
   return { name: 'dev-api', configureServer: mount, configurePreviewServer: mount }
 }
 
+// Social crawlers need an absolute og:image URL: SITE_URL if set, otherwise the Vercel production domain, otherwise relative.
+function siteUrl(env) {
+  const host = env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_PROJECT_PRODUCTION_URL
+  return (env.SITE_URL || (host ? `https://${host}` : '')).replace(/\/$/, '')
+}
+
 export default defineConfig(({ mode }) => ({
-  plugins: [react(), devApi(loadEnv(mode, process.cwd(), ''))],
+  plugins: [
+    react(),
+    devApi(loadEnv(mode, process.cwd(), '')),
+    { name: 'site-url', transformIndexHtml: (html) => html.replaceAll('%SITE_URL%', siteUrl(loadEnv(mode, process.cwd(), ''))) },
+  ],
   server: { port: 3000 },
 }))
