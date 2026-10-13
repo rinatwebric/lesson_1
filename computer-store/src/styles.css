@@ -21,6 +21,8 @@
   --visual-bg: #e9e8e5;
   --lift: 0 28px 48px -24px rgba(17, 17, 17, .3);
   --band: #111111;
+  --spot: rgba(17, 17, 17, .055);
+  --btn-shadow: 0 12px 24px -12px rgba(17, 17, 17, .55);
   color-scheme: light;
 }
 :root[data-theme='dark'] {
@@ -46,6 +48,8 @@
   --visual-bg: #242426;
   --lift: 0 28px 48px -24px rgba(0, 0, 0, .9), 0 0 0 1px #3a3a3c;
   --band: #000000;
+  --spot: rgba(255, 255, 255, .09);
+  --btn-shadow: 0 12px 28px -12px rgba(255, 255, 255, .35);
   color-scheme: dark;
 }
 :root {
@@ -771,3 +775,57 @@ a, button, label, select { touch-action: manipulation; }
 .logo { transition: opacity .2s; }
 .shop-more, .underlined, .link-inline { transition: text-underline-offset .25s cubic-bezier(.2, .7, .2, 1); }
 .pill, .faq-icon, .menu-theme, .icon-btn { transition: background .2s, border-color .2s, color .2s, transform .4s cubic-bezier(.2, .7, .2, 1); }
+
+/* ---------- hover polish (mouse only) ---------- */
+.btn, .cart-btn { position: relative; overflow: hidden; isolation: isolate; }
+.btn .arr { display: inline-block; transition: transform .35s cubic-bezier(.2, .7, .2, 1); }
+.btn::after, .cart-btn::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, .22) 50%, transparent 70%); transform: translateX(-120%); }
+.btn-ghost::after, .btn-light::after, .btn-done::after { display: none; }
+.shop-card::before, .tile::before, .cfg-option::before, .review-list li::before, .contact-card::before, .cfg-card::before { content: ''; position: absolute; inset: 0; z-index: 1; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .3s; background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 50%), var(--spot), transparent 65%); }
+.tile, .review-list li, .contact-card, .cfg-card { position: relative; }
+.shop-card, .tile { transition: transform .45s cubic-bezier(.2, .7, .2, 1), box-shadow .45s; }
+.shop-card .shop-actions .btn { transition: background .2s, border-color .2s, transform .2s, box-shadow .25s; }
+.pill, .filter-toggle, .chip-btn { transition: background .2s, border-color .2s, color .2s, transform .25s cubic-bezier(.2, .7, .2, 1); }
+.thumbs button { transition: opacity .2s, border-color .2s, transform .25s cubic-bezier(.2, .7, .2, 1); }
+.foot-links a, .crumbs a { background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size .3s cubic-bezier(.2, .7, .2, 1), color .2s; }
+.faq-item h3 button span { transition: transform .35s cubic-bezier(.2, .7, .2, 1); }
+
+@media (hover: hover) {
+  .btn:hover:not(:disabled):not(.btn-ghost):not(.btn-light):not(.btn-outline-light), .cart-btn:hover { transform: translateY(-2px); box-shadow: var(--btn-shadow); }
+  .btn:hover:not(:disabled)::after, .cart-btn:hover::after { transform: translateX(120%); transition: transform .8s cubic-bezier(.2, .7, .2, 1); }
+  .btn:hover .arr { transform: translateX(5px); }
+  .btn-ghost:hover:not(:disabled), .btn-outline-light:hover:not(:disabled) { transform: translateY(-2px); }
+  .btn-light:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 14px 28px -14px rgba(255, 255, 255, .5); }
+  .btn:active:not(:disabled), .cart-btn:active { transform: translateY(0) scale(.97); box-shadow: none; }
+  .hero .btn-ghost:hover:not(:disabled) { box-shadow: 0 12px 24px -14px rgba(17, 17, 17, .45); }
+
+  .shop-card:hover::before, .tile:hover::before, .cfg-option:hover::before, .review-list li:hover::before, .contact-card:hover::before, .cfg-card:hover::before { opacity: 1; }
+  .shop-card:hover .shop-actions .btn:not(.btn-done) { box-shadow: var(--btn-shadow); }
+  .shop-card:hover .shop-badge { transform: translateY(-2px); }
+  .shop-badge { transition: transform .35s cubic-bezier(.2, .7, .2, 1); }
+  .shop-card:hover h3 a { text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 1.5px; }
+  .fav-btn:hover { transform: scale(1.1); background: #fff; }
+
+  .pill:not(.active):hover, .chip-btn:not(.active):hover, .filter-toggle:hover { transform: translateY(-2px); }
+  .pill:not(.active):hover { border-color: var(--ink); }
+  .icon-btn:hover { background: var(--card); transform: scale(1.08); }
+  .icon-btn:active { transform: scale(.94); }
+  .thumbs button:not(.on):hover { transform: translateY(-3px); }
+  .review-list li { transition: transform .35s cubic-bezier(.2, .7, .2, 1), box-shadow .35s; }
+  .review-list li:hover { transform: translateY(-3px); box-shadow: var(--lift); }
+  .cfg-card { transition: box-shadow .35s; }
+  .cfg-option:not(.on):hover { box-shadow: 0 10px 24px -16px rgba(0, 0, 0, .45); }
+  .why-list li, .steps li { transition: transform .35s cubic-bezier(.2, .7, .2, 1); }
+  .why-list li:hover { transform: translateY(-4px); }
+  .steps li:hover { transform: translateX(6px); }
+  .steps li:hover .step-num { color: #fff; }
+
+  .faq-item button:hover span:first-child { transform: translateX(6px); }
+  .faq-item button:hover { color: var(--ink); }
+  .foot-links a:hover, .crumbs a:hover { background-size: 100% 1px; text-decoration: none; }
+  .nav-links a:hover::after { transform: scaleX(1); }
+  .tile:hover strong { letter-spacing: -.045em; }
+  .tile strong { transition: letter-spacing .35s; }
+}
+@media (hover: none) { .btn::after, .cart-btn::after { display: none; } }
+@media (prefers-reduced-motion: reduce) { .btn::after, .cart-btn::after { display: none; } }

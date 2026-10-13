@@ -45,7 +45,7 @@ export default function Home() {
           </h1>
           <p className="hero-lead">Компьютеры, ноутбуки и рабочие станции, собранные с вниманием к каждой детали.</p>
           <div className="hero-cta">
-            <Link className="btn btn-lg" to="/catalog">Смотреть каталог →</Link>
+            <Link className="btn btn-lg" to="/catalog">Смотреть каталог <span className="arr" aria-hidden="true">→</span></Link>
             <Link className="btn btn-lg btn-ghost" to="/configurator">Собрать свой ПК</Link>
           </div>
         </div>
@@ -97,7 +97,7 @@ export default function Home() {
             <h2>Ваш компьютер.<br />Ваши правила.</h2>
             <p className="build-lead">Расскажите, для чего нужен ПК, а мы подберём конфигурацию под задачи и бюджет.</p>
             <div className="build-cta">
-              <Link className="btn btn-lg btn-light" to="/#contacts">Получить расчёт →</Link>
+              <Link className="btn btn-lg btn-light" to="/#contacts">Получить расчёт <span className="arr" aria-hidden="true">→</span></Link>
               <Link className="btn btn-lg btn-outline-light" to="/configurator">Собрать самому</Link>
             </div>
           </ScrollReveal>
@@ -127,7 +127,7 @@ export default function Home() {
         <ScrollReveal {...reveal} className="faq-head">
           <h2>Частые<br />вопросы</h2>
           <p>Не нашли ответ? Напишите нам, и мы ответим в течение 15 минут.</p>
-          <Link className="btn btn-ghost" to="/#contacts">Задать вопрос</Link>
+          <Link className="btn btn-ghost" to={{ pathname: '/', hash: '#contacts' }} state={{ ask: true }}>Задать вопрос</Link>
         </ScrollReveal>
         <ScrollReveal {...reveal} transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}>
           <Faq items={FAQ} />

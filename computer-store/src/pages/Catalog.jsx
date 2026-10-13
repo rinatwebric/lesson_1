@@ -134,7 +134,7 @@ export default function Catalog() {
           <p className="eyebrow">Не нашли нужное?</p>
           <h2 id="banner-title">Соберём компьютер<br />под ваши задачи</h2>
         </div>
-        <Link className="btn btn-lg btn-light" to="/#contacts">Собрать на заказ →</Link>
+        <Link className="btn btn-lg btn-light" to="/#contacts">Собрать на заказ <span className="arr" aria-hidden="true">→</span></Link>
       </section>
     </div>
   )
