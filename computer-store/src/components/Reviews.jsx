@@ -51,6 +51,7 @@ export default function Reviews({ id }) {
       <h2 id="reviews-title">Отзывы</h2>
       <div className="reviews-grid">
         <div className="reviews-side">
+          <div className="reviews-summary">
           <div className="rating-big">
             <strong>{count ? avg.toFixed(1) : '—'}</strong>
             <div>
@@ -69,6 +70,7 @@ export default function Reviews({ id }) {
               ))}
             </ul>
           )}
+          </div>
           <ReviewForm id={id} />
         </div>
 

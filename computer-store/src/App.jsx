@@ -16,6 +16,9 @@ import { useStore } from './store.jsx'
 function ScrollManager() {
   const { pathname, hash } = useLocation()
   useEffect(() => {
+    document.body.dataset.route = pathname.startsWith('/product') ? 'product' : pathname.slice(1)
+  }, [pathname])
+  useEffect(() => {
     if (hash) requestAnimationFrame(() => document.getElementById(hash.slice(1))?.scrollIntoView())
     else window.scrollTo(0, 0)
   }, [pathname, hash])
@@ -54,7 +57,7 @@ function Header() {
         <Link className="logo" to="/" aria-label="nexus, на главную">nexus<i>.</i></Link>
         <nav className="nav-links" aria-label="Основная"><NavItems /></nav>
         <div className="nav-actions">
-          <button className="icon-btn" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему'}>
+          <button className="icon-btn theme-btn" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему'}>
             <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={20} />
           </button>
           <NavLink to="/favorites" className="icon-btn pos-rel" aria-label={`Избранное, товаров: ${favoriteIds.length}`}>
@@ -62,7 +65,7 @@ function Header() {
             {favoriteIds.length > 0 && <span className="mini-count" key={favoriteIds.length}>{favoriteIds.length}</span>}
           </NavLink>
           {compareIds.length > 0 && (
-            <NavLink to="/compare" className="icon-btn pos-rel" aria-label={`Сравнение, товаров: ${compareIds.length}`}>
+            <NavLink to="/compare" className="icon-btn pos-rel nav-compare" aria-label={`Сравнение, товаров: ${compareIds.length}`}>
               <Icon name="scale" size={20} />
               <span className="mini-count" key={compareIds.length}>{compareIds.length}</span>
             </NavLink>
@@ -83,7 +86,16 @@ function Header() {
             initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.35, ease: [0.2, 0.7, 0.2, 1] }}
           >
-            <div className="container mobile-menu-in"><NavItems onClick={() => setMenu(false)} /></div>
+            <div className="container mobile-menu-in">
+              <NavItems onClick={() => setMenu(false)} />
+              {compareIds.length > 0 && <Link to="/compare" className="menu-compare" onClick={() => setMenu(false)}>Сравнение · {compareIds.length}</Link>}
+              <div className="menu-extra">
+                <button type="button" className="menu-theme" onClick={toggleTheme}>
+                  <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={18} /> {theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+                </button>
+                <a href="tel:+78005553535">+7 800 555-35-35</a>
+              </div>
+            </div>
           </motion.nav>
         )}
       </AnimatePresence>

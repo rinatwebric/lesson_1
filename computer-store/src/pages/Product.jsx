@@ -1,4 +1,5 @@
-import { useMemo } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AddButton, CompareToggle, FavoriteButton, RatingLine } from '../components/ProductCard.jsx'
 import Gallery from '../components/Gallery.jsx'
@@ -21,6 +22,16 @@ export default function Product() {
   const { id } = useParams()
   const p = byId(id)
   const similar = useMemo(() => (p ? similarTo(p) : []), [p])
+  const buyRef = useRef(null)
+  const [pastBuy, setPastBuy] = useState(false)
+
+  useEffect(() => {
+    const el = buyRef.current
+    if (!el) return
+    const io = new IntersectionObserver(([e]) => setPastBuy(!e.isIntersecting && e.boundingClientRect.top < 0))
+    io.observe(el)
+    return () => io.disconnect()
+  }, [p?.id])
 
   if (!p) {
     return (
@@ -64,7 +75,7 @@ export default function Product() {
           </div>
           <p className={`stock ${low ? 'low' : ''}`}><i aria-hidden="true" />{low ? `Осталось ${p.stock} шт.` : 'В наличии · доставка завтра'}</p>
 
-          <div className="buy-actions">
+          <div className="buy-actions" ref={buyRef}>
             <AddButton id={p.id} large />
             <Link className="btn btn-lg btn-ghost" to="/#contacts">Консультация</Link>
           </div>
@@ -100,6 +111,17 @@ export default function Product() {
           </div>
         </section>
       )}
+      <AnimatePresence>
+        {pastBuy && (
+          <motion.div className="buy-bar" initial={{ y: '120%' }} animate={{ y: 0 }} exit={{ y: '120%' }} transition={{ duration: 0.35, ease: [0.2, 0.7, 0.2, 1] }}>
+            <div>
+              <strong>{fmt(p.price)}</strong>
+              <span>{p.name}</span>
+            </div>
+            <AddButton id={p.id} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

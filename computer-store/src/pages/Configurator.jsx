@@ -1,11 +1,12 @@
 import { AnimatePresence, motion } from 'motion/react'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import Icon from '../Icons.jsx'
 import AnimatedNumber from '../components/AnimatedNumber.jsx'
 import ScrollReveal, { fadeUp } from '../components/ScrollReveal.jsx'
 import { PRESETS, SLOTS, optionErrors, scores, summarize } from '../configurator/rules.js'
 import { byId, fmt, products } from '../data'
+import useMedia from '../useMedia.js'
 import { useStore } from '../store.jsx'
 
 const MAX_PCS = 50
@@ -26,58 +27,75 @@ function buildName(parts, total) {
   return `Nexus Custom ${total < 100000 ? 'Start' : total < 200000 ? 'Pro' : 'Ultra'}`
 }
 
-function SlotOptions({ slot, index, parts, onPick }) {
+function SlotOptions({ slot, index, parts, onPick, mobile, open, onToggle }) {
   const options = useMemo(
     () => products.filter((p) => p.cat === slot.cat && (slot.filter?.(p) ?? true)).sort((a, b) => a.price - b.price),
     [slot],
   )
   const selected = parts[slot.id]
   const titleId = `slot-${slot.id}`
+  const foldId = `fold-${slot.id}`
+  const isOpen = !mobile || open
+  const Title = mobile ? 'span' : 'h2'
+  const num = mobile && selected ? '✓' : String(index + 1).padStart(2, '0')
+
+  const head = (
+    <>
+      <Title id={titleId} className="cfg-title">
+        <span className={`cfg-num ${mobile && selected ? 'done' : ''}`}>{num}</span>
+        {slot.label}
+      </Title>
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.span
+          key={selected?.id ?? 'none'} className="cfg-pick"
+          initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.18 }}
+        >
+          {selected ? selected.name : slot.required ? 'Не выбрано' : 'Не нужна'}
+        </motion.span>
+      </AnimatePresence>
+      {mobile && <i className="cfg-chev" aria-hidden="true" />}
+    </>
+  )
 
   return (
-    <ScrollReveal as="section" className="cfg-card" variants={fadeUp} transition={{ duration: 0.55, ease: 'easeOut' }} viewOptions={{ amount: 0.1 }} once aria-labelledby={titleId}>
-      <div className="cfg-head">
-        <h2 id={titleId}>
-          <span className="cfg-num">{String(index + 1).padStart(2, '0')}</span>
-          {slot.label}
-        </h2>
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.span
-            key={selected?.id ?? 'none'} className="cfg-pick"
-            initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.18 }}
-          >
-            {selected ? selected.name : slot.required ? 'Не выбрано' : 'Не нужна'}
-          </motion.span>
-        </AnimatePresence>
-      </div>
-      <div className="cfg-options" role="radiogroup" aria-labelledby={titleId}>
-        {!slot.required && (
-          <label className={`cfg-option ${!selected ? 'on' : ''}`}>
-            <input type="radio" name={slot.id} checked={!selected} onChange={() => onPick(slot.id, null)} />
-            <i className="cfg-dot" aria-hidden="true" />
-            <span className="cfg-main"><strong>{slot.none}</strong></span>
-          </label>
-        )}
-        {options.map((p) => {
-          const bad = optionErrors(slot.id, p, parts)[0]
-          const on = selected?.id === p.id
-          return (
-            <label key={p.id} className={`cfg-option ${on ? 'on' : ''} ${bad ? 'bad' : ''}`}>
-              <input type="radio" name={slot.id} checked={on} onChange={() => onPick(slot.id, p.id)} aria-describedby={bad ? `bad-${slot.id}-${p.id}` : undefined} />
-              <i className="cfg-dot" aria-hidden="true" />
-              <span className="cfg-main">
-                <strong>{p.name}</strong>
-                <span className="cfg-sub">{p.highlights.join(' · ')}</span>
-                {bad && (
-                  <span className="cfg-issue" id={`bad-${slot.id}-${p.id}`}>
-                    <Icon name="alert" size={14} /> Не подходит: {bad.text}
+    <ScrollReveal as="section" id={`card-${slot.id}`} className={`cfg-card ${isOpen ? 'open' : ''}`} variants={fadeUp} transition={{ duration: 0.55, ease: 'easeOut' }} viewOptions={{ amount: 0.1 }} once aria-labelledby={titleId}>
+      {mobile ? (
+        <button type="button" className="cfg-head cfg-toggle" aria-expanded={isOpen} aria-controls={foldId} onClick={onToggle}>{head}</button>
+      ) : (
+        <div className="cfg-head">{head}</div>
+      )}
+      <div className="cfg-fold" id={foldId} inert={!isOpen}>
+        <div>
+          <div className="cfg-options" role="radiogroup" aria-labelledby={titleId}>
+            {!slot.required && (
+              <label className={`cfg-option ${!selected ? 'on' : ''}`}>
+                <input type="radio" name={slot.id} checked={!selected} onChange={() => onPick(slot.id, null)} />
+                <i className="cfg-dot" aria-hidden="true" />
+                <span className="cfg-main"><strong>{slot.none}</strong></span>
+              </label>
+            )}
+            {options.map((p) => {
+              const bad = optionErrors(slot.id, p, parts)[0]
+              const on = selected?.id === p.id
+              return (
+                <label key={p.id} className={`cfg-option ${on ? 'on' : ''} ${bad ? 'bad' : ''}`}>
+                  <input type="radio" name={slot.id} checked={on} onChange={() => onPick(slot.id, p.id)} aria-describedby={bad ? `bad-${slot.id}-${p.id}` : undefined} />
+                  <i className="cfg-dot" aria-hidden="true" />
+                  <span className="cfg-main">
+                    <strong>{p.name}</strong>
+                    <span className="cfg-sub">{p.highlights.join(' · ')}</span>
+                    {bad && (
+                      <span className="cfg-issue" id={`bad-${slot.id}-${p.id}`}>
+                        <Icon name="alert" size={14} /> Не подходит: {bad.text}
+                      </span>
+                    )}
                   </span>
-                )}
-              </span>
-              <span className="cfg-price">{fmt(p.price)}</span>
-            </label>
-          )
-        })}
+                  <span className="cfg-price">{fmt(p.price)}</span>
+                </label>
+              )
+            })}
+          </div>
+        </div>
       </div>
     </ScrollReveal>
   )
@@ -88,6 +106,9 @@ export default function Configurator() {
   const { addMany, openCart } = useStore()
   const [count, setCount] = useState(1)
   const [copied, setCopied] = useState('')
+  const mobile = useMedia('(max-width: 979px)')
+  const [openSlot, setOpenSlot] = useState('cpu')
+  const timer = useRef(0)
 
   const parts = useMemo(() => partsFromParams(params), [params])
   const sum = summarize(parts)
@@ -96,13 +117,21 @@ export default function Configurator() {
   const photo = parts.case?.image ?? DEFAULT_PHOTO
   const activePreset = PRESETS.find((p) => SLOTS.every((s) => (parts[s.id]?.id ?? null) === (p.parts[s.id] ?? null)))
 
-  const pick = (slotId, id) =>
+  const pick = (slotId, id) => {
     setParams((prev) => {
       const next = new URLSearchParams(prev)
       if (id) next.set(slotId, id)
       else next.delete(slotId)
       return next
     }, { replace: true })
+    if (!mobile) return
+    const nextSlot = SLOTS[SLOTS.findIndex((x) => x.id === slotId) + 1]
+    setOpenSlot(nextSlot ? nextSlot.id : null)
+    clearTimeout(timer.current)
+    timer.current = setTimeout(() => {
+      document.getElementById(nextSlot ? `card-${nextSlot.id}` : 'summary')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 380)
+  }
 
   const applyPreset = (preset) => setParams(new URLSearchParams(Object.entries(preset.parts).map(([k, v]) => [k, String(v)])), { replace: true })
   const reset = () => setParams(new URLSearchParams(), { replace: true })
@@ -122,7 +151,8 @@ export default function Configurator() {
     setTimeout(() => setCopied(''), 2500)
   }
 
-  const statusText = sum.errors.length ? `Ошибок: ${sum.errors.length}` : sum.missing.length ? `Не выбрано: ${sum.missing.length}` : 'Готово'
+  const required = SLOTS.filter((x) => x.required).length
+  const statusText = sum.errors.length ? `Ошибок: ${sum.errors.length}` : sum.missing.length ? `Выбрано ${required - sum.missing.length} из ${required}` : 'Всё подходит'
 
   return (
     <div className="container page cfg">
@@ -144,7 +174,7 @@ export default function Configurator() {
 
       <div className="cfg-layout">
         <div className="cfg-slots">
-          {SLOTS.map((slot, i) => <SlotOptions key={slot.id} slot={slot} index={i} parts={parts} onPick={pick} />)}
+          {SLOTS.map((slot, i) => <SlotOptions key={slot.id} slot={slot} index={i} parts={parts} onPick={pick} mobile={mobile} open={openSlot === slot.id} onToggle={() => setOpenSlot((o) => (o === slot.id ? null : slot.id))} />)}
         </div>
 
         <aside className="cfg-summary" id="summary" aria-label="Ваша сборка">
@@ -228,7 +258,11 @@ export default function Configurator() {
       <div className="cfg-bar">
         <div><span className="muted-text">Итого</span> <strong><AnimatedNumber value={sum.total * count} format={money} /></strong></div>
         <span className={`cfg-bar-state ${sum.errors.length ? 'err' : ''}`}>{statusText}</span>
-        <a className="btn" href="#summary">К сборке</a>
+        {sum.complete ? (
+          <button type="button" className="btn" onClick={addBuild}>В корзину</button>
+        ) : (
+          <a className="btn" href="#summary">К сборке</a>
+        )}
       </div>
     </div>
   )

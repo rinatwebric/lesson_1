@@ -14,6 +14,15 @@ export default function Gallery({ p, children }) {
               key={list[i]} src={list[i]} alt={`${p.name}, фото ${i + 1}`} width="1200" height="896"
               initial={{ opacity: 0, scale: 1.03 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
               transition={{ duration: 0.5, ease: [0.2, 0.7, 0.2, 1] }}
+              {...(list.length > 1 && {
+                drag: 'x', dragConstraints: { left: 0, right: 0 }, dragElastic: 0.3, style: { touchAction: 'pan-y' },
+                onDragEnd: (_, { offset, velocity }) => {
+                  const swipe = offset.x + velocity.x * 0.2
+                  if (swipe < -60) setI((n) => Math.min(n + 1, list.length - 1))
+                  else if (swipe > 60) setI((n) => Math.max(n - 1, 0))
+                },
+              })}
+              draggable={false}
             />
           </AnimatePresence>
         ) : (
