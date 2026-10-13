@@ -47,9 +47,20 @@ function NavItems({ onClick }) {
     route ? <NavLink key={to} to={to} onClick={onClick}>{t(key)}</NavLink> : <Link key={to} to={to} onClick={onClick}>{t(key)}</Link>)
 }
 
+function LangSwitch() {
+  const { t, lang, setLang } = useLang()
+  return (
+    <div className="lang-switch" role="group" aria-label={t('nav.lang')} data-lang={lang}>
+      {[['ru', 'RU', 'Русский'], ['en', 'EN', 'English']].map(([code, label, name]) => (
+        <button key={code} type="button" lang={code} aria-pressed={lang === code} aria-label={name} onClick={() => setLang(code)}>{label}</button>
+      ))}
+    </div>
+  )
+}
+
 function Header() {
   const { cart, compareIds, favoriteIds, theme, toggleTheme, openCart } = useStore()
-  const { t, toggleLang } = useLang()
+  const { t } = useLang()
   const [menu, setMenu] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const { pathname } = useLocation()
@@ -68,7 +79,7 @@ function Header() {
         <Link className="logo" to="/" aria-label={t('nav.home')}>nexus<i>.</i></Link>
         <nav className="nav-links" aria-label={t('nav.main')}><NavItems /></nav>
         <div className="nav-actions">
-          <button className="icon-btn lang-btn" onClick={toggleLang} aria-label={t('nav.langAria')} lang={t('nav.langShort').toLowerCase()}>{t('nav.langShort')}</button>
+          <LangSwitch />
           <button className="icon-btn theme-btn" onClick={toggleTheme} aria-label={theme === 'dark' ? t('nav.themeLight') : t('nav.themeDark')}>
             <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={20} />
           </button>

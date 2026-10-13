@@ -826,7 +826,15 @@ a, button, label, select { touch-action: manipulation; }
 @media (prefers-reduced-motion: reduce) { .btn::after, .cart-btn::after { display: none; } }
 
 /* ---------- language switch ---------- */
-.lang-btn { font-size: 12px; font-weight: 800; letter-spacing: .04em; border: 1px solid var(--line-strong); }
+/* Segmented RU | EN control; the thumb slides via data-lang. */
+.lang-switch { position: relative; display: inline-grid; grid-template-columns: 1fr 1fr; flex: none; height: 38px; padding: 3px; background: var(--card); border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line); }
+.lang-switch::before { content: ''; position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px); border-radius: 999px; background: var(--ink); transition: transform .35s cubic-bezier(.2, .7, .2, 1); }
+.lang-switch[data-lang='en']::before { transform: translateX(100%); }
+.lang-switch button { position: relative; z-index: 1; min-width: 38px; padding: 0 10px; background: none; border: 0; border-radius: 999px; color: var(--muted); font-size: 12px; font-weight: 800; letter-spacing: .06em; transition: color .25s; }
+.lang-switch button[aria-pressed='true'] { color: var(--paper); cursor: default; }
+@media (hover: hover) { .lang-switch button[aria-pressed='false']:hover { color: var(--ink); } }
+@media (max-width: 559px) { .lang-switch { height: 34px; margin-right: 2px; } .lang-switch button { min-width: 32px; padding: 0 7px; font-size: 11px; } }
+@media (prefers-reduced-motion: reduce) { .lang-switch::before { transition: none; } }
 
 /* ---------- checkout ---------- */
 .co-head { max-width: 640px; margin-bottom: 32px; }
