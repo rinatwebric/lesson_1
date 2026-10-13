@@ -30,26 +30,6 @@ function ScrollManager() {
   return null
 }
 
-// Feeds the cursor position to cards as --mx/--my for the spotlight highlight.
-function useSpotlight() {
-  useEffect(() => {
-    if (!window.matchMedia('(hover: hover)').matches) return
-    let frame = 0
-    const move = (e) => {
-      const el = e.target.closest?.('.shop-card, .tile, .cfg-option, .review-list li, .contact-card, .cfg-card')
-      if (!el) return
-      cancelAnimationFrame(frame)
-      frame = requestAnimationFrame(() => {
-        const r = el.getBoundingClientRect()
-        el.style.setProperty('--mx', `${e.clientX - r.left}px`)
-        el.style.setProperty('--my', `${e.clientY - r.top}px`)
-      })
-    }
-    document.addEventListener('pointermove', move, { passive: true })
-    return () => { document.removeEventListener('pointermove', move); cancelAnimationFrame(frame) }
-  }, [])
-}
-
 const NAV = [
   ['/catalog', 'Каталог', true],
   ['/configurator', 'Конфигуратор', true],
@@ -147,7 +127,6 @@ function CompareBar() {
 export default function App() {
   const { announce } = useStore()
   const location = useLocation()
-  useSpotlight()
   return (
     <>
       <a className="skip" href="#main">К содержимому</a>
