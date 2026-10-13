@@ -7,15 +7,18 @@ import '@fontsource/manrope/600.css'
 import '@fontsource/manrope/700.css'
 import '@fontsource/manrope/800.css'
 import App from './App.jsx'
+import { LangProvider } from './i18n/index.jsx'
 import { StoreProvider } from './store.jsx'
 import './styles.css'
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
-    <StoreProvider>
-      <MotionConfig reducedMotion="user">
-        <App />
-      </MotionConfig>
-    </StoreProvider>
+    <LangProvider>
+      <StoreProvider>
+        <MotionConfig reducedMotion="user">
+          <App />
+        </MotionConfig>
+      </StoreProvider>
+    </LangProvider>
   </BrowserRouter>,
 )

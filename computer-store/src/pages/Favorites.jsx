@@ -3,15 +3,17 @@ import { Link } from 'react-router-dom'
 import ShopCard from '../components/ShopCard.jsx'
 import { byId } from '../data'
 import { useStore } from '../store.jsx'
+import { useLang } from '../i18n/index.jsx'
 
 export default function Favorites() {
+  const { t } = useLang()
   const { favoriteIds } = useStore()
   const list = favoriteIds.map(byId).filter(Boolean)
   return (
     <div className="container page shop">
       <header className="shop-head">
-        <h1>Избранное</h1>
-        <p>{list.length ? 'Товары, к которым хочется вернуться' : 'Здесь появятся товары, которые вы отметите сердечком'}</p>
+        <h1>{t('favorites.title')}</h1>
+        <p>{list.length ? t('favorites.subtitle') : t('favorites.emptySubtitle')}</p>
       </header>
       {list.length ? (
         <div className="shop-grid">
@@ -29,9 +31,9 @@ export default function Favorites() {
         </div>
       ) : (
         <div className="shop-empty">
-          <h2>Пока пусто</h2>
-          <p>Нажмите на сердечко на карточке товара, чтобы сохранить его.</p>
-          <Link className="btn" to="/catalog">Перейти в каталог</Link>
+          <h2>{t('favorites.empty.title')}</h2>
+          <p>{t('favorites.empty.text')}</p>
+          <Link className="btn" to="/catalog">{t('favorites.empty.catalog')}</Link>
         </div>
       )}
     </div>

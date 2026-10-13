@@ -1,0 +1,28 @@
+export default {
+  ru: {
+    'cart.title': 'Корзина',
+    'cart.close': 'Закрыть корзину',
+    'cart.dec': ({ name }) => `Убавить: ${name}`,
+    'cart.inc': ({ name }) => `Добавить: ${name}`,
+    'cart.remove': ({ name }) => `Удалить: ${name}`,
+    'cart.qty': 'Количество',
+    'cart.emptyTitle': 'В корзине пока пусто',
+    'cart.emptyText': 'Добавьте товары из каталога, и они появятся здесь.',
+    'cart.toCatalog': 'Перейти к каталогу',
+    'cart.total': 'Итого',
+    'cart.checkout': 'Оформить заказ',
+  },
+  en: {
+    'cart.title': 'Cart',
+    'cart.close': 'Close cart',
+    'cart.dec': ({ name }) => `Decrease quantity: ${name}`,
+    'cart.inc': ({ name }) => `Increase quantity: ${name}`,
+    'cart.remove': ({ name }) => `Remove: ${name}`,
+    'cart.qty': 'Quantity',
+    'cart.emptyTitle': 'Your cart is empty',
+    'cart.emptyText': 'Add products from the catalog and they will show up here.',
+    'cart.toCatalog': 'Go to catalog',
+    'cart.total': 'Total',
+    'cart.checkout': 'Checkout',
+  },
+}

@@ -1,8 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { byId } from './data'
+import { byId, localizeProduct } from './data'
+import { getLang, translate } from './i18n/index.jsx'
 import { ratingStats, seedReviews } from './data/reviews.js'
 
 const Ctx = createContext(null)
+const nameOf = (id) => localizeProduct(byId(id), getLang())?.name
 export const useStore = () => useContext(Ctx)
 
 export const MAX_COMPARE = 4
@@ -42,7 +44,7 @@ export function StoreProvider({ children }) {
 
   const addToCart = useCallback((id) => {
     setItems((s) => ({ ...s, [id]: Math.min((s[id] ?? 0) + 1, 99) }))
-    setAnnounce(`${byId(id).name} добавлен в корзину`)
+    setAnnounce(translate('store.added', { name: nameOf(id) }))
   }, [setItems])
 
   const addMany = useCallback((ids, times = 1) => {
@@ -51,7 +53,7 @@ export function StoreProvider({ children }) {
       for (const id of ids) next[id] = Math.min((next[id] ?? 0) + times, 99)
       return next
     })
-    setAnnounce(`Сборка добавлена в корзину: ${ids.length} комплектующих`)
+    setAnnounce(translate('store.addedBuild', { n: ids.length }))
   }, [setItems])
 
   const changeQty = useCallback((id, d) => {
@@ -76,7 +78,7 @@ export function StoreProvider({ children }) {
     setCompareIds((ids) => {
       if (ids.includes(id)) return ids.filter((x) => x !== id)
       if (ids.length >= MAX_COMPARE) {
-        setAnnounce(`Можно сравнить не более ${MAX_COMPARE} товаров`)
+        setAnnounce(translate('store.compareMax', { n: MAX_COMPARE }))
         return ids
       }
       return [...ids, id]
@@ -86,7 +88,7 @@ export function StoreProvider({ children }) {
   const toggleFavorite = useCallback((id) => {
     setFavoriteIds((ids) => {
       const on = ids.includes(id)
-      setAnnounce(`${byId(id)?.name}: ${on ? 'убрано из избранного' : 'добавлено в избранное'}`)
+      setAnnounce(translate(on ? 'store.favOff' : 'store.favOn', { name: nameOf(id) }))
       return on ? ids.filter((x) => x !== id) : [...ids, id]
     })
   }, [setFavoriteIds])
@@ -95,7 +97,7 @@ export function StoreProvider({ children }) {
   const statsOf = useCallback((id) => ratingStats(reviewsOf(id), byId(id)?.rating ?? 0), [reviewsOf])
   const addReview = useCallback((id, review) => {
     setUserReviews((s) => ({ ...s, [id]: [{ ...review, id: `u${Date.now()}`, verified: false }, ...(s[id] ?? [])] }))
-    setAnnounce('Спасибо! Отзыв опубликован')
+    setAnnounce(translate('store.reviewThanks'))
   }, [setUserReviews])
 
   const value = {

@@ -10,7 +10,11 @@ import Compare from './pages/Compare.jsx'
 import Configurator from './pages/Configurator.jsx'
 import Catalog from './pages/Catalog.jsx'
 import Favorites from './pages/Favorites.jsx'
+import Checkout from './pages/Checkout.jsx'
+import NotFound from './pages/NotFound.jsx'
 import { byId } from './data'
+import { CONTACTS } from './data/contacts.js'
+import { useLang } from './i18n/index.jsx'
 import { useStore } from './store.jsx'
 
 function ScrollManager() {
@@ -31,19 +35,21 @@ function ScrollManager() {
 }
 
 const NAV = [
-  ['/catalog', 'Каталог', true],
-  ['/configurator', 'Конфигуратор', true],
-  ['/#service', 'Сервис'],
-  ['/#contacts', 'Контакты'],
+  ['/catalog', 'nav.catalog', true],
+  ['/configurator', 'nav.configurator', true],
+  ['/#service', 'nav.service'],
+  ['/#contacts', 'nav.contacts'],
 ]
 
 function NavItems({ onClick }) {
-  return NAV.map(([to, label, route]) =>
-    route ? <NavLink key={to} to={to} onClick={onClick}>{label}</NavLink> : <Link key={to} to={to} onClick={onClick}>{label}</Link>)
+  const { t } = useLang()
+  return NAV.map(([to, key, route]) =>
+    route ? <NavLink key={to} to={to} onClick={onClick}>{t(key)}</NavLink> : <Link key={to} to={to} onClick={onClick}>{t(key)}</Link>)
 }
 
 function Header() {
   const { cart, compareIds, favoriteIds, theme, toggleTheme, openCart } = useStore()
+  const { t, toggleLang } = useLang()
   const [menu, setMenu] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const { pathname } = useLocation()
@@ -59,27 +65,28 @@ function Header() {
   return (
     <header className={`nav ${scrolled ? 'scrolled' : ''}`}>
       <div className="container nav-in">
-        <Link className="logo" to="/" aria-label="nexus, на главную">nexus<i>.</i></Link>
-        <nav className="nav-links" aria-label="Основная"><NavItems /></nav>
+        <Link className="logo" to="/" aria-label={t('nav.home')}>nexus<i>.</i></Link>
+        <nav className="nav-links" aria-label={t('nav.main')}><NavItems /></nav>
         <div className="nav-actions">
-          <button className="icon-btn theme-btn" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему'}>
+          <button className="icon-btn lang-btn" onClick={toggleLang} aria-label={t('nav.langAria')} lang={t('nav.langShort').toLowerCase()}>{t('nav.langShort')}</button>
+          <button className="icon-btn theme-btn" onClick={toggleTheme} aria-label={theme === 'dark' ? t('nav.themeLight') : t('nav.themeDark')}>
             <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={20} />
           </button>
-          <NavLink to="/favorites" className="icon-btn pos-rel" aria-label={`Избранное, товаров: ${favoriteIds.length}`}>
+          <NavLink to="/favorites" className="icon-btn pos-rel" aria-label={t('nav.favorites', { n: favoriteIds.length })}>
             <Icon name="heart" size={20} />
             {favoriteIds.length > 0 && <span className="mini-count" key={favoriteIds.length}>{favoriteIds.length}</span>}
           </NavLink>
           {compareIds.length > 0 && (
-            <NavLink to="/compare" className="icon-btn pos-rel nav-compare" aria-label={`Сравнение, товаров: ${compareIds.length}`}>
+            <NavLink to="/compare" className="icon-btn pos-rel nav-compare" aria-label={t('nav.compare', { n: compareIds.length })}>
               <Icon name="scale" size={20} />
               <span className="mini-count" key={compareIds.length}>{compareIds.length}</span>
             </NavLink>
           )}
-          <button className="cart-btn" onClick={openCart} aria-label={`Корзина, товаров: ${cart.count}`}>
-            Корзина
+          <button className="cart-btn" onClick={openCart} aria-label={t('nav.cartAria', { n: cart.count })}>
+            {t('nav.cart')}
             <span className="cart-count" key={cart.count}>{cart.count}</span>
           </button>
-          <button className="icon-btn menu-btn" onClick={() => setMenu((m) => !m)} aria-expanded={menu} aria-controls="mobile-menu" aria-label={menu ? 'Закрыть меню' : 'Открыть меню'}>
+          <button className="icon-btn menu-btn" onClick={() => setMenu((m) => !m)} aria-expanded={menu} aria-controls="mobile-menu" aria-label={menu ? t('nav.closeMenu') : t('nav.openMenu')}>
             <Icon name={menu ? 'close' : 'menu'} size={22} />
           </button>
         </div>
@@ -87,18 +94,18 @@ function Header() {
       <AnimatePresence initial={false}>
         {menu && (
           <motion.nav
-            id="mobile-menu" className="mobile-menu" aria-label="Меню"
+            id="mobile-menu" className="mobile-menu" aria-label={t('nav.menu')}
             initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.35, ease: [0.2, 0.7, 0.2, 1] }}
           >
             <div className="container mobile-menu-in">
               <NavItems onClick={() => setMenu(false)} />
-              {compareIds.length > 0 && <Link to="/compare" className="menu-compare" onClick={() => setMenu(false)}>Сравнение · {compareIds.length}</Link>}
+              {compareIds.length > 0 && <Link to="/compare" className="menu-compare" onClick={() => setMenu(false)}>{t('nav.compareMenu', { n: compareIds.length })}</Link>}
               <div className="menu-extra">
                 <button type="button" className="menu-theme" onClick={toggleTheme}>
-                  <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={18} /> {theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+                  <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={18} /> {theme === 'dark' ? t('nav.themeLightShort') : t('nav.themeDarkShort')}
                 </button>
-                <a href="tel:+78005553535">+7 800 555-35-35</a>
+                <a href={`tel:${CONTACTS.tel}`}>{CONTACTS.phone}</a>
               </div>
             </div>
           </motion.nav>
@@ -110,15 +117,16 @@ function Header() {
 
 function CompareBar() {
   const { compareIds, clearCompare } = useStore()
+  const { t, tp } = useLang()
   const { pathname } = useLocation()
-  if (!compareIds.length || pathname === '/compare' || pathname === '/configurator') return null
+  if (!compareIds.length || pathname === '/compare' || pathname === '/configurator' || pathname === '/checkout') return null
   return (
-    <div className="compare-bar" role="region" aria-label="Список сравнения">
+    <div className="compare-bar" role="region" aria-label={t('compareBar.region')}>
       <div className="container compare-bar-in">
-        <ul>{compareIds.map((id) => <li key={id} title={byId(id).name}><ProductVisual p={byId(id)} size={22} /></li>)}</ul>
-        <span className="compare-bar-text">В сравнении: {compareIds.length}</span>
-        <button className="link-btn" onClick={clearCompare}>Очистить</button>
-        <Link className="btn" to="/compare">Сравнить</Link>
+        <ul>{compareIds.map((id) => <li key={id} title={tp(byId(id)).name}><ProductVisual p={byId(id)} size={22} /></li>)}</ul>
+        <span className="compare-bar-text">{t('compareBar.count', { n: compareIds.length })}</span>
+        <button className="link-btn" onClick={clearCompare}>{t('compareBar.clear')}</button>
+        <Link className="btn" to="/compare">{t('compareBar.go')}</Link>
       </div>
     </div>
   )
@@ -126,10 +134,11 @@ function CompareBar() {
 
 export default function App() {
   const { announce } = useStore()
+  const { t } = useLang()
   const location = useLocation()
   return (
     <>
-      <a className="skip" href="#main">К содержимому</a>
+      <a className="skip" href="#main">{t('nav.skip')}</a>
       <ScrollManager />
       <Header />
       <motion.main id="main" key={location.pathname} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: [0.2, 0.7, 0.2, 1] }}>
@@ -140,20 +149,21 @@ export default function App() {
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/compare" element={<Compare />} />
           <Route path="/configurator" element={<Configurator />} />
-          <Route path="*" element={<div className="container page"><div className="empty big"><h1 className="h2">Страница не найдена</h1><Link className="btn" to="/">На главную</Link></div></div>} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </motion.main>
 
       <footer className="footer">
         <div className="container foot-in">
-          <Link className="logo" to="/" aria-label="nexus, на главную">nexus<i>.</i></Link>
-          <nav className="foot-links" aria-label="Подвал">
-            <Link to="/catalog">Каталог</Link>
-            <Link to="/configurator">Конфигуратор</Link>
-            <Link to="/#faq">Вопросы и ответы</Link>
-            <Link to="/#contacts">Контакты</Link>
+          <Link className="logo" to="/" aria-label={t('nav.home')}>nexus<i>.</i></Link>
+          <nav className="foot-links" aria-label={t('footer.nav')}>
+            <Link to="/catalog">{t('footer.catalog')}</Link>
+            <Link to="/configurator">{t('footer.configurator')}</Link>
+            <Link to="/#faq">{t('footer.faq')}</Link>
+            <Link to="/#contacts">{t('footer.contacts')}</Link>
           </nav>
-          <p>© 2026 Nexus. Компьютеры премиум-класса.</p>
+          <p>{t('footer.copy')}<br /><small>{t('footer.demo')}</small></p>
         </div>
       </footer>
 

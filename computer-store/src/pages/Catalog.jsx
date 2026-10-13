@@ -6,16 +6,18 @@ import ShopCard from '../components/ShopCard.jsx'
 import { shopGroups, shopProducts } from '../data'
 import { DEFAULT_FILTERS, applyFilters, countFilters } from '../data/filters.js'
 import { useStore } from '../store.jsx'
+import { useLang } from '../i18n/index.jsx'
 
 const SORTS = {
-  popular: { label: 'По популярности', fn: (a, b) => b.popularity - a.popularity },
-  asc: { label: 'Сначала дешевле', fn: (a, b) => a.price - b.price },
-  desc: { label: 'Сначала дороже', fn: (a, b) => b.price - a.price },
-  rating: { label: 'По рейтингу', fn: (a, b) => b.rating - a.rating || b.reviews - a.reviews },
-  new: { label: 'Новинки', fn: (a, b) => Number(b.isNew) - Number(a.isNew) || b.id - a.id },
+  popular: { label: 'catalog.sort.popular', fn: (a, b) => b.popularity - a.popularity },
+  asc: { label: 'catalog.sort.asc', fn: (a, b) => a.price - b.price },
+  desc: { label: 'catalog.sort.desc', fn: (a, b) => b.price - a.price },
+  rating: { label: 'catalog.sort.rating', fn: (a, b) => b.rating - a.rating || b.reviews - a.reviews },
+  new: { label: 'catalog.sort.new', fn: (a, b) => Number(b.isNew) - Number(a.isNew) || b.id - a.id },
 }
 
 export default function Catalog() {
+  const { t, tgroup } = useLang()
   const [params, setParams] = useSearchParams()
   const [sort, setSort] = useState('popular')
   const [query, setQuery] = useState('')
@@ -45,30 +47,30 @@ export default function Catalog() {
   return (
     <div className="container page shop">
       <header className="shop-head">
-        <h1>Каталог</h1>
-        <p>Техника, которой не нужно оправдываться</p>
+        <h1>{t('catalog.title')}</h1>
+        <p>{t('catalog.subtitle')}</p>
       </header>
 
-      <div className="pills" role="group" aria-label="Категории">
+      <div className="pills" role="group" aria-label={t('catalog.categories')}>
         {shopGroups.map((g) => (
-          <button key={g.id} className={`pill ${group === g.id ? 'active' : ''}`} aria-pressed={group === g.id} onClick={() => setGroup(g.id)}>{g.name}</button>
+          <button key={g.id} className={`pill ${group === g.id ? 'active' : ''}`} aria-pressed={group === g.id} onClick={() => setGroup(g.id)}>{tgroup(g.id)}</button>
         ))}
       </div>
 
       <div className="shop-bar">
-        <p className="shop-count" aria-live="polite">Найдено: <b>{list.length}</b></p>
+        <p className="shop-count" aria-live="polite">{t('catalog.found')} <b>{list.length}</b></p>
         <label className="shop-search">
           <Icon name="search" size={16} />
-          <span className="sr-only">Поиск по названию</span>
-          <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Поиск по названию" />
+          <span className="sr-only">{t('catalog.search')}</span>
+          <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t('catalog.search')} />
         </label>
         <button type="button" className={`filter-toggle ${open || active ? 'on' : ''}`} aria-expanded={open} aria-controls="filters" onClick={() => setOpen((o) => !o)}>
-          <Icon name="sliders" size={16} /> Фильтры{active > 0 && <b>{active}</b>}
+          <Icon name="sliders" size={16} /> {t('catalog.filters')}{active > 0 && <b>{active}</b>}
         </button>
         <label className="shop-sort">
-          <span className="sr-only">Сортировка</span>
+          <span className="sr-only">{t('catalog.sort')}</span>
           <select value={sort} onChange={(e) => setSort(e.target.value)}>
-            {Object.entries(SORTS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+            {Object.entries(SORTS).map(([k, v]) => <option key={k} value={k}>{t(v.label)}</option>)}
           </select>
         </label>
       </div>
@@ -78,30 +80,30 @@ export default function Catalog() {
         <motion.div className="filters-wrap" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.35, ease: [0.2, 0.7, 0.2, 1] }}>
         <div className="filters" id="filters">
           <fieldset className="f-group">
-            <legend>Цена, ₽</legend>
+            <legend>{t('catalog.filter.price')}</legend>
             <div className="f-range">
-              <input type="number" inputMode="numeric" min="0" placeholder="от" aria-label="Цена от" value={filters.min} onChange={(e) => setF('min')(e.target.value)} />
+              <input type="number" inputMode="numeric" min="0" placeholder={t('catalog.filter.from')} aria-label={t('catalog.filter.priceFrom')} value={filters.min} onChange={(e) => setF('min')(e.target.value)} />
               <span aria-hidden="true">—</span>
-              <input type="number" inputMode="numeric" min="0" placeholder="до" aria-label="Цена до" value={filters.max} onChange={(e) => setF('max')(e.target.value)} />
+              <input type="number" inputMode="numeric" min="0" placeholder={t('catalog.filter.to')} aria-label={t('catalog.filter.priceTo')} value={filters.max} onChange={(e) => setF('max')(e.target.value)} />
             </div>
           </fieldset>
           <fieldset className="f-group">
-            <legend>Рейтинг</legend>
+            <legend>{t('catalog.filter.rating')}</legend>
             <div className="f-chips">
-              {[[0, 'Любой'], [4.5, '4.5+'], [4.7, '4.7+'], [4.8, '4.8+']].map(([v, l]) => (
+              {[[0, t('catalog.filter.any')], [4.5, '4.5+'], [4.7, '4.7+'], [4.8, '4.8+']].map(([v, l]) => (
                 <button type="button" key={v} className={`pill sm ${filters.rating === v ? 'active' : ''}`} aria-pressed={filters.rating === v} onClick={() => setF('rating')(v)}>{l}</button>
               ))}
             </div>
           </fieldset>
           <fieldset className="f-group">
-            <legend>Отметки</legend>
+            <legend>{t('catalog.filter.tags')}</legend>
             <div className="f-chips">
-              {[['sale', 'Со скидкой'], ['isNew', 'Новинки'], ['hit', 'Хиты']].map(([k, l]) => (
+              {[['sale', t('catalog.filter.sale')], ['isNew', t('catalog.filter.new')], ['hit', t('catalog.filter.hit')]].map(([k, l]) => (
                 <button type="button" key={k} className={`pill sm ${filters[k] ? 'active' : ''}`} aria-pressed={filters[k]} onClick={() => setF(k)(!filters[k])}>{l}</button>
               ))}
             </div>
           </fieldset>
-          <button type="button" className="link-btn f-reset" onClick={() => setFilters(DEFAULT_FILTERS)} disabled={!active}>Сбросить фильтры</button>
+          <button type="button" className="link-btn f-reset" onClick={() => setFilters(DEFAULT_FILTERS)} disabled={!active}>{t('catalog.filter.reset')}</button>
         </div>
         </motion.div>
       )}
@@ -123,18 +125,18 @@ export default function Catalog() {
         </div>
       ) : (
         <motion.div className="shop-empty" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-          <h2>Ничего не нашли</h2>
-          <p>Попробуйте изменить фильтры, запрос или категорию.</p>
-          <button className="btn" onClick={reset}>Сбросить</button>
+          <h2>{t('catalog.empty.title')}</h2>
+          <p>{t('catalog.empty.text')}</p>
+          <button className="btn" onClick={reset}>{t('catalog.empty.reset')}</button>
         </motion.div>
       )}
 
       <section className="banner" aria-labelledby="banner-title">
         <div>
-          <p className="eyebrow">Не нашли нужное?</p>
-          <h2 id="banner-title">Соберём компьютер<br />под ваши задачи</h2>
+          <p className="eyebrow">{t('catalog.banner.eyebrow')}</p>
+          <h2 id="banner-title">{t('catalog.banner.title1')}<br />{t('catalog.banner.title2')}</h2>
         </div>
-        <Link className="btn btn-lg btn-light" to="/#contacts">Собрать на заказ <span className="arr" aria-hidden="true">→</span></Link>
+        <Link className="btn btn-lg btn-light" to="/#contacts">{t('catalog.banner.cta')} <span className="arr" aria-hidden="true">→</span></Link>
       </section>
     </div>
   )

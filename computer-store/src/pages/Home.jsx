@@ -3,57 +3,52 @@ import ScrollReveal, { fadeUp } from '../components/ScrollReveal.jsx'
 import CountUp from '../components/CountUp.jsx'
 import Faq from '../components/Faq.jsx'
 import LeadForm from '../components/LeadForm.jsx'
-import { FAQ } from '../data/faq.js'
+import { useLang } from '../i18n/index.jsx'
+import { CONTACTS, FREE_COURIER_FROM } from '../data/contacts.js'
+import { getFaq } from '../data/faq.js'
 
-const STATS = [
-  [<CountUp to={3} suffix=" года" />, 'гарантия на сборки'],
-  [<CountUp to={48} suffix=" ч" />, 'сборка и тестирование'],
-  ['0 ₽', 'доставка по городу'],
-  ['24/7', 'поддержка'],
-]
 const BIG = [
-  { to: '/catalog?group=laptops', img: '/products/laptop-air-open.jpg', title: 'Ноутбуки', text: 'Для работы, учёбы и творчества' },
-  { to: '/catalog?group=monitors', img: '/products/workspace.jpg', title: 'Рабочие места', text: 'Мониторы, клавиатуры, периферия' },
+  { to: '/catalog?group=laptops', img: '/products/laptop-air-open.jpg', title: 'home.tiles.laptops.title', text: 'home.tiles.laptops.text' },
+  { to: '/catalog?group=monitors', img: '/products/workspace.jpg', title: 'home.tiles.workspaces.title', text: 'home.tiles.workspaces.text' },
 ]
 const SMALL = [
-  ['01', 'Игровые ПК', 'Тихие и холодные, с топовыми видеокартами.', 'gaming'],
-  ['02', 'Рабочие станции', 'Для 3D, монтажа и разработки.', 'workstations'],
-  ['03', 'Комплектующие', 'Процессоры, память, SSD, корпуса.', 'parts'],
+  ['01', 'home.tiles.gaming', 'gaming'],
+  ['02', 'home.tiles.workstations', 'workstations'],
+  ['03', 'home.tiles.parts', 'parts'],
 ]
-const STEPS = [
-  ['Консультация', 'Обсудим задачи и бюджет'],
-  ['Подбор конфигурации', 'Совместимость и баланс без переплат'],
-  ['Сборка и стресс-тест', 'Аккуратный кабель-менеджмент, 12 часов тестов'],
-  ['Доставка и настройка', 'Привезём и подключим'],
-]
-const WHY = [
-  ['Честные консультации', 'Советуем то, что действительно нужно, а не самое дорогое.'],
-  ['Собственный сервис', 'Диагностика, апгрейд и ремонт в одном месте.'],
-  ['Trade-in', 'Сдайте старую технику и получите скидку на новую.'],
-]
+const STEPS = ['consult', 'config', 'assembly', 'delivery']
+const WHY = ['advice', 'service', 'tradein']
 const reveal = { variants: fadeUp, transition: { duration: 0.6, ease: 'easeOut' }, viewOptions: { amount: 0.15 }, once: true }
 
 export default function Home() {
+  const { t, lang, fmt } = useLang()
+  const stats = [
+    [<CountUp to={3} suffix={t('home.stats.years')} />, t('home.stats.warranty')],
+    [<CountUp to={48} suffix={t('home.stats.hours')} />, t('home.stats.assembly')],
+    [t('home.stats.delivery', { sum: fmt(FREE_COURIER_FROM) }), t('home.stats.deliveryLabel')],
+    ['24/7', t('home.stats.support')],
+  ]
+
   return (
     <>
       <section className="hero">
         <div className="container hero-in">
           <p className="eyebrow">Nexus Pro Series</p>
           <h1>
-            <span className="h-line"><span>Мощность.</span></span>
-            <span className="h-line"><span>Без лишнего.</span></span>
+            <span className="h-line"><span>{t('home.hero.line1')}</span></span>
+            <span className="h-line"><span>{t('home.hero.line2')}</span></span>
           </h1>
-          <p className="hero-lead">Компьютеры, ноутбуки и рабочие станции, собранные с вниманием к каждой детали.</p>
+          <p className="hero-lead">{t('home.hero.lead')}</p>
           <div className="hero-cta">
-            <Link className="btn btn-lg" to="/catalog">Смотреть каталог <span className="arr" aria-hidden="true">→</span></Link>
-            <Link className="btn btn-lg btn-ghost" to="/configurator">Собрать свой ПК</Link>
+            <Link className="btn btn-lg" to="/catalog">{t('home.hero.catalog')} <span className="arr" aria-hidden="true">→</span></Link>
+            <Link className="btn btn-lg btn-ghost" to="/configurator">{t('home.hero.build')}</Link>
           </div>
         </div>
       </section>
 
-      <section className="stats" aria-label="Наши гарантии">
+      <section className="stats" aria-label={t('home.stats.aria')}>
         <dl className="container stats-in">
-          {STATS.map(([v, l], i) => (
+          {stats.map(([v, l], i) => (
             <ScrollReveal key={l} variants={fadeUp} transition={{ duration: 0.6, delay: i * 0.08, ease: 'easeOut' }} viewOptions={{ amount: 0.5 }} once>
               <dt>{v}</dt><dd>{l}</dd>
             </ScrollReveal>
@@ -63,27 +58,27 @@ export default function Home() {
 
       <section id="catalog" className="container home-catalog">
         <div className="section-head">
-          <h2>Каталог</h2>
-          <p>Только проверенные комплектующие и техника ведущих производителей.</p>
+          <h2>{t('home.catalog.title')}</h2>
+          <p>{t('home.catalog.lead')}</p>
         </div>
         <div className="tiles">
-            {BIG.map((t, i) => (
-              <ScrollReveal key={t.to} className="cell cell-big" variants={fadeUp} transition={{ duration: 0.7, delay: i * 0.1, ease: 'easeOut' }} viewOptions={{ amount: 0.15 }} once>
-              <Link to={t.to} className="tile">
-                <span className="tile-photo"><img src={t.img} alt="" loading="lazy" width="800" height="600" /></span>
+            {BIG.map((tile, i) => (
+              <ScrollReveal key={tile.to} className="cell cell-big" variants={fadeUp} transition={{ duration: 0.7, delay: i * 0.1, ease: 'easeOut' }} viewOptions={{ amount: 0.15 }} once>
+              <Link to={tile.to} className="tile">
+                <span className="tile-photo"><img src={tile.img} alt="" loading="lazy" width="800" height="600" /></span>
                 <span className="tile-body">
-                  <span><strong>{t.title}</strong><span>{t.text}</span></span>
+                  <span><strong>{t(tile.title)}</strong><span>{t(tile.text)}</span></span>
                   <span className="tile-arrow" aria-hidden="true">→</span>
                 </span>
               </Link>
               </ScrollReveal>
             ))}
-            {SMALL.map(([n, t, d, g], i) => (
+            {SMALL.map(([n, key, g], i) => (
               <ScrollReveal key={g} className="cell cell-small" variants={fadeUp} transition={{ duration: 0.7, delay: 0.2 + i * 0.1, ease: 'easeOut' }} viewOptions={{ amount: 0.15 }} once>
                 <Link to={`/catalog?group=${g}`} className="tile tile-small">
                   <span className="tile-num">{n}</span>
-                  <strong>{t}</strong>
-                  <span>{d}</span>
+                  <strong>{t(`${key}.title`)}</strong>
+                  <span>{t(`${key}.text`)}</span>
                 </Link>
               </ScrollReveal>
             ))}
@@ -93,19 +88,19 @@ export default function Home() {
       <section id="build" className="build">
         <div className="container build-in">
           <ScrollReveal {...reveal}>
-            <p className="eyebrow">Сборка на заказ</p>
-            <h2>Ваш компьютер.<br />Ваши правила.</h2>
-            <p className="build-lead">Расскажите, для чего нужен ПК, а мы подберём конфигурацию под задачи и бюджет.</p>
+            <p className="eyebrow">{t('home.build.eyebrow')}</p>
+            <h2>{t('home.build.title1')}<br />{t('home.build.title2')}</h2>
+            <p className="build-lead">{t('home.build.lead')}</p>
             <div className="build-cta">
-              <Link className="btn btn-lg btn-light" to="/#contacts">Получить расчёт <span className="arr" aria-hidden="true">→</span></Link>
-              <Link className="btn btn-lg btn-outline-light" to="/configurator">Собрать самому</Link>
+              <Link className="btn btn-lg btn-light" to="/#contacts">{t('home.build.quote')} <span className="arr" aria-hidden="true">→</span></Link>
+              <Link className="btn btn-lg btn-outline-light" to="/configurator">{t('home.build.self')}</Link>
             </div>
           </ScrollReveal>
           <ol className="steps">
-            {STEPS.map(([t, d], i) => (
-              <ScrollReveal as="li" key={t} variants={fadeUp} transition={{ duration: 0.6, delay: 0.1 + i * 0.1, ease: 'easeOut' }} viewOptions={{ amount: 0.3 }} once>
+            {STEPS.map((s, i) => (
+              <ScrollReveal as="li" key={s} variants={fadeUp} transition={{ duration: 0.6, delay: 0.1 + i * 0.1, ease: 'easeOut' }} viewOptions={{ amount: 0.3 }} once>
                 <span className="step-num">0{i + 1}</span>
-                <span><strong>{t}</strong><span>{d}</span></span>
+                <span><strong>{t(`home.steps.${s}.title`)}</strong><span>{t(`home.steps.${s}.text`)}</span></span>
               </ScrollReveal>
             ))}
           </ol>
@@ -113,11 +108,11 @@ export default function Home() {
       </section>
 
       <section id="service" className="container why">
-        <h2>Почему выбирают<br />Nexus</h2>
+        <h2>{t('home.why.title')}<br />Nexus</h2>
         <ul className="why-list">
-          {WHY.map(([t, d], i) => (
-            <ScrollReveal as="li" key={t} variants={fadeUp} transition={{ duration: 0.6, delay: i * 0.1, ease: 'easeOut' }} viewOptions={{ amount: 0.3 }} once>
-              <strong>{t}</strong><span>{d}</span>
+          {WHY.map((w, i) => (
+            <ScrollReveal as="li" key={w} variants={fadeUp} transition={{ duration: 0.6, delay: i * 0.1, ease: 'easeOut' }} viewOptions={{ amount: 0.3 }} once>
+              <strong>{t(`home.why.${w}.title`)}</strong><span>{t(`home.why.${w}.text`)}</span>
             </ScrollReveal>
           ))}
         </ul>
@@ -125,12 +120,12 @@ export default function Home() {
 
       <section id="faq" className="container faq">
         <ScrollReveal {...reveal} className="faq-head">
-          <h2>Частые<br />вопросы</h2>
-          <p>Не нашли ответ? Напишите нам, и мы ответим в течение 15 минут.</p>
-          <Link className="btn btn-ghost" to={{ pathname: '/', hash: '#contacts' }} state={{ ask: true }}>Задать вопрос</Link>
+          <h2>{t('home.faq.title1')}<br />{t('home.faq.title2')}</h2>
+          <p>{t('home.faq.lead')}</p>
+          <Link className="btn btn-ghost" to={{ pathname: '/', hash: '#contacts' }} state={{ ask: true }}>{t('home.faq.ask')}</Link>
         </ScrollReveal>
         <ScrollReveal {...reveal} transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}>
-          <Faq items={FAQ} />
+          <Faq items={getFaq(lang)} />
         </ScrollReveal>
       </section>
 
@@ -138,9 +133,9 @@ export default function Home() {
         <ScrollReveal {...reveal}>
           <div className="contact-card">
             <div>
-              <h2>Давайте подберём ваш компьютер</h2>
-              <p>Оставьте заявку, и мы перезвоним в течение 15 минут.</p>
-              <p className="contact-meta">+7 800 555-35-35<br />Москва, ул. Технопарковая, 12 · ежедневно 10:00–21:00</p>
+              <h2>{t('home.contact.title')}</h2>
+              <p>{t('home.contact.lead')}</p>
+              <p className="contact-meta">{CONTACTS.phone}<br />{CONTACTS.address[lang]} · {CONTACTS.hours[lang]}</p>
             </div>
             <LeadForm />
           </div>

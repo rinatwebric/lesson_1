@@ -1,12 +1,12 @@
 export const SLOTS = [
-  { id: 'cpu', cat: 'cpu', label: 'Процессор', required: true },
-  { id: 'motherboard', cat: 'motherboards', label: 'Материнская плата', required: true },
-  { id: 'gpu', cat: 'gpu', label: 'Видеокарта', required: false, none: 'Без видеокарты (графика процессора)' },
-  { id: 'ram', cat: 'ram', label: 'Оперативная память', required: true },
-  { id: 'storage', cat: 'storage', label: 'Накопитель', required: true, filter: (p) => p.compat?.m2 },
-  { id: 'cooler', cat: 'cooling', label: 'Охлаждение', required: true },
-  { id: 'psu', cat: 'psu', label: 'Блок питания', required: true },
-  { id: 'case', cat: 'cases', label: 'Корпус', required: true },
+  { id: 'cpu', cat: 'cpu', labelKey: 'cfg.slot.cpu', required: true },
+  { id: 'motherboard', cat: 'motherboards', labelKey: 'cfg.slot.motherboard', required: true },
+  { id: 'gpu', cat: 'gpu', labelKey: 'cfg.slot.gpu', required: false, noneKey: 'cfg.slot.gpuNone' },
+  { id: 'ram', cat: 'ram', labelKey: 'cfg.slot.ram', required: true },
+  { id: 'storage', cat: 'storage', labelKey: 'cfg.slot.storage', required: true, filter: (p) => p.compat?.m2 },
+  { id: 'cooler', cat: 'cooling', labelKey: 'cfg.slot.cooler', required: true },
+  { id: 'psu', cat: 'psu', labelKey: 'cfg.slot.psu', required: true },
+  { id: 'case', cat: 'cases', labelKey: 'cfg.slot.case', required: true },
 ]
 
 const OTHER_LOAD_W = 100
@@ -28,32 +28,33 @@ export function recommendedPsu(load) {
 export function check(parts) {
   const { cpu, motherboard: mb, ram, gpu, psu, case: pc, cooler } = parts
   const issues = []
-  const error = (slots, text) => issues.push({ level: 'error', slots, text })
-  const warn = (slots, text) => issues.push({ level: 'warn', slots, text })
+  // Messages are i18n keys with params; the UI translates them.
+  const error = (slots, msg, vars) => issues.push({ level: 'error', slots, msg, vars })
+  const warn = (slots, msg, vars) => issues.push({ level: 'warn', slots, msg, vars })
 
   if (cpu && mb && c(cpu).socket !== c(mb).socket) {
-    error(['cpu', 'motherboard'], `Процессор с сокетом ${c(cpu).socket} не подходит к плате с сокетом ${c(mb).socket}.`)
+    error(['cpu', 'motherboard'], 'cfg.issue.socket', { cpu: c(cpu).socket, mb: c(mb).socket })
   }
   if (ram && mb && c(ram).memory !== c(mb).memory) {
-    error(['ram', 'motherboard'], `Память ${c(ram).memory} не подходит к плате, которая работает с ${c(mb).memory}.`)
+    error(['ram', 'motherboard'], 'cfg.issue.memory', { ram: c(ram).memory, mb: c(mb).memory })
   }
   if (mb && pc && !c(pc).forms?.includes(c(mb).form)) {
-    error(['motherboard', 'case'], `Плата формата ${c(mb).form} не помещается в корпус (поддерживает: ${c(pc).forms.join(', ')}).`)
+    error(['motherboard', 'case'], 'cfg.issue.form', { form: c(mb).form, forms: c(pc).forms.join(', ') })
   }
   if (gpu && pc && c(gpu).length > c(pc).gpuMax) {
-    error(['gpu', 'case'], `Видеокарта длиной ${c(gpu).length} мм не помещается в корпус (максимум ${c(pc).gpuMax} мм).`)
+    error(['gpu', 'case'], 'cfg.issue.gpuLength', { len: c(gpu).length, max: c(pc).gpuMax })
   }
   if (cooler && cpu && !c(cooler).sockets?.includes(c(cpu).socket)) {
-    error(['cooler', 'cpu'], `Кулер не поддерживает сокет ${c(cpu).socket}.`)
+    error(['cooler', 'cpu'], 'cfg.issue.coolerSocket', { socket: c(cpu).socket })
   }
   if (cooler && pc && c(cooler).type === 'air' && c(cooler).height > c(pc).coolerMax) {
-    error(['cooler', 'case'], `Кулер высотой ${c(cooler).height} мм не помещается в корпус (максимум ${c(pc).coolerMax} мм).`)
+    error(['cooler', 'case'], 'cfg.issue.coolerHeight', { h: c(cooler).height, max: c(pc).coolerMax })
   }
   if (cooler && pc && c(cooler).type === 'aio' && !c(pc).radiators?.includes(c(cooler).radiator)) {
-    error(['cooler', 'case'], `Радиатор ${c(cooler).radiator} мм не помещается в корпус.`)
+    error(['cooler', 'case'], 'cfg.issue.radiator', { r: c(cooler).radiator })
   }
   if (cooler && cpu && c(cooler).tdp < c(cpu).tdp) {
-    warn(['cooler', 'cpu'], `Кулер рассчитан на ${c(cooler).tdp} Вт, а процессор может потреблять до ${c(cpu).tdp} Вт. Возможен перегрев.`)
+    warn(['cooler', 'cpu'], 'cfg.issue.coolerTdp', { tdp: c(cooler).tdp, cpu: c(cpu).tdp })
   }
 
   const load = powerLoad(parts)
@@ -61,9 +62,9 @@ export function check(parts) {
     const watts = c(psu).watts
     const recommended = recommendedPsu(load)
     if (watts < load) {
-      error(['psu', 'cpu', 'gpu'], `Блок питания ${watts} Вт слабее расчётной нагрузки ${load} Вт.`)
+      error(['psu', 'cpu', 'gpu'], 'cfg.issue.psuLow', { watts, load })
     } else if (watts < recommended) {
-      warn(['psu'], `Мощности хватит, но запас маленький: рекомендуем блок от ${recommended} Вт.`)
+      warn(['psu'], 'cfg.issue.psuHeadroom', { rec: recommended })
     }
   }
   return issues
@@ -104,8 +105,8 @@ export function scores(parts) {
 }
 
 export const PRESETS = [
-  { id: 'gaming', name: 'Игровой 1440p', note: 'Ryzen 7 7800X3D и RTX 4070 Super', parts: { cpu: 10, motherboard: 23, ram: 28, gpu: 7, storage: 16, psu: 32, case: 35, cooler: 38 } },
-  { id: 'office', name: 'Офисный', note: 'Тихий и компактный, без видеокарты', parts: { cpu: 12, motherboard: 24, ram: 27, storage: 41, psu: 31, case: 36, cooler: 38 } },
-  { id: 'club', name: 'Для ПК-клуба', note: 'Core i7 и RX 7800 XT, запас по питанию', parts: { cpu: 11, motherboard: 25, ram: 28, gpu: 8, storage: 16, psu: 33, case: 35, cooler: 40 } },
-  { id: 'max', name: 'Максимум', note: 'Ryzen 7 7800X3D и RTX 4090', parts: { cpu: 10, motherboard: 23, ram: 29, gpu: 9, storage: 17, psu: 34, case: 37, cooler: 40 } },
+  { id: 'gaming', nameKey: 'cfg.preset.gaming', noteKey: 'cfg.preset.gaming.note', parts: { cpu: 10, motherboard: 23, ram: 28, gpu: 7, storage: 16, psu: 32, case: 35, cooler: 38 } },
+  { id: 'office', nameKey: 'cfg.preset.office', noteKey: 'cfg.preset.office.note', parts: { cpu: 12, motherboard: 24, ram: 27, storage: 41, psu: 31, case: 36, cooler: 38 } },
+  { id: 'club', nameKey: 'cfg.preset.club', noteKey: 'cfg.preset.club.note', parts: { cpu: 11, motherboard: 25, ram: 28, gpu: 8, storage: 16, psu: 33, case: 35, cooler: 40 } },
+  { id: 'max', nameKey: 'cfg.preset.max', noteKey: 'cfg.preset.max.note', parts: { cpu: 10, motherboard: 23, ram: 29, gpu: 9, storage: 17, psu: 34, case: 37, cooler: 40 } },
 ]

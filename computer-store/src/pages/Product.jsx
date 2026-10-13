@@ -6,9 +6,9 @@ import Gallery from '../components/Gallery.jsx'
 import ScrollReveal, { fadeUp } from '../components/ScrollReveal.jsx'
 import Reviews from '../components/Reviews.jsx'
 import ShopCard from '../components/ShopCard.jsx'
-import { badgeOf, byId, fmt, groupName, labelOf, products, shopProducts } from '../data'
-
-const TRUST = [['Гарантия', 'официальная'], ['Доставка', 'бесплатно'], ['Возврат', '14 дней']]
+import { badgeOf, byId, products, shopProducts } from '../data'
+import { CONTACTS, FREE_COURIER_FROM } from '../data/contacts.js'
+import { useLang } from '../i18n/index.jsx'
 
 function similarTo(p) {
   if (!p.group) return products.filter((x) => x.cat === p.cat && x.id !== p.id).slice(0, 3)
@@ -19,8 +19,10 @@ function similarTo(p) {
 }
 
 export default function Product() {
+  const { t, fmt, tp, tgroup, tlabel, lang } = useLang()
   const { id } = useParams()
   const p = byId(id)
+  const v = tp(p)
   const similar = useMemo(() => (p ? similarTo(p) : []), [p])
   const buyRef = useRef(null)
   const [pastBuy, setPastBuy] = useState(false)
@@ -37,60 +39,65 @@ export default function Product() {
     return (
       <div className="container page">
         <div className="empty big">
-          <h1 className="h2">Товар не найден</h1>
-          <p>Возможно, он снят с продажи или ссылка устарела.</p>
-          <Link className="btn" to="/catalog">Вернуться в каталог</Link>
+          <h1 className="h2">{t('product.notFound.title')}</h1>
+          <p>{t('product.notFound.text')}</p>
+          <Link className="btn" to="/catalog">{t('product.notFound.back')}</Link>
         </div>
       </div>
     )
   }
 
-  const badge = badgeOf(p)
+  const badge = badgeOf(p, lang)
   const low = p.stock <= 3
+  const trust = [
+    [t('product.trust.warranty'), t('product.trust.warrantyValue')],
+    [t('product.trust.delivery'), t('product.trust.deliveryValue', { sum: fmt(FREE_COURIER_FROM) })],
+    [t('product.trust.return'), t('product.trust.returnValue')],
+  ]
 
   return (
     <div className="container page product-page">
-      <nav className="crumbs" aria-label="Навигация по разделам">
-        <Link to="/">Главная</Link> / <Link to="/catalog">Каталог</Link> /{' '}
-        {p.group ? <Link to={`/catalog?group=${p.group}`}>{groupName(p.group)}</Link> : <span>{labelOf(p)}</span>} /{' '}
-        <span aria-current="page">{p.name}</span>
+      <nav className="crumbs" aria-label={t('product.crumbs.aria')}>
+        <Link to="/">{t('product.crumbs.home')}</Link> / <Link to="/catalog">{t('product.crumbs.catalog')}</Link> /{' '}
+        {p.group ? <Link to={`/catalog?group=${p.group}`}>{tgroup(p.group)}</Link> : <span>{tlabel(p)}</span>} /{' '}
+        <span aria-current="page">{v.name}</span>
       </nav>
 
       <div className="product">
         <Gallery key={p.id} p={p}>
           {badge && <span className="shop-badge">{badge}</span>}
-          <FavoriteButton id={p.id} name={p.name} />
+          <FavoriteButton id={p.id} name={v.name} />
         </Gallery>
 
         <div className="product-main">
-          <p className="shop-cat">{labelOf(p)}</p>
-          <h1>{p.name}</h1>
+          <p className="shop-cat">{tlabel(p)}</p>
+          <h1>{v.name}</h1>
           <a className="rating-link" href="#reviews"><RatingLine id={p.id} /></a>
-          <p className="product-spec">{p.highlights.join(' · ')}</p>
-          <p className="product-desc">{p.description}</p>
+          <p className="product-spec">{v.highlights.join(' · ')}</p>
+          <p className="product-desc">{v.description}</p>
 
           <div className="product-price">
             <strong>{fmt(p.price)}</strong>
             {p.old && <s>{fmt(p.old)}</s>}
           </div>
-          <p className={`stock ${low ? 'low' : ''}`}><i aria-hidden="true" />{low ? `Осталось ${p.stock} шт.` : 'В наличии · доставка завтра'}</p>
+          <p className={`stock ${low ? 'low' : ''}`}><i aria-hidden="true" />{low ? t('product.stock.low', { n: p.stock }) : t('product.stock.ok')}</p>
 
           <div className="buy-actions" ref={buyRef}>
             <AddButton id={p.id} large />
-            <Link className="btn btn-lg btn-ghost" to="/#contacts">Консультация</Link>
+            <Link className="btn btn-lg btn-ghost" to="/#contacts">{t('product.consult')}</Link>
           </div>
-          <CompareToggle id={p.id} name={p.name} />
+          <CompareToggle id={p.id} name={v.name} />
 
           <ul className="trust">
-            {TRUST.map(([t, d]) => <li key={t}><strong>{t}</strong><span>{d}</span></li>)}
+            {trust.map(([title, d]) => <li key={title}><strong>{title}</strong><span>{d}</span></li>)}
           </ul>
         </div>
       </div>
 
       <section className="specs-block" aria-labelledby="specs-title">
-        <h2 id="specs-title">Характеристики</h2>
+        <h2 id="specs-title">{t('product.specs')}</h2>
         <dl className="spec-table">
-          {Object.entries(p.specs).map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
+          {Object.entries(v.specs).map(([k, val]) => <div key={k}><dt>{k}</dt><dd>{val}</dd></div>)}
         </dl>
       </section>
 
@@ -99,8 +106,8 @@ export default function Product() {
       {similar.length > 0 && (
         <section className="similar" aria-labelledby="similar-title">
           <div className="similar-head">
-            <h2 id="similar-title">Похожие товары</h2>
-            <Link className="underlined" to="/catalog">Весь каталог</Link>
+            <h2 id="similar-title">{t('product.similar')}</h2>
+            <Link className="underlined" to="/catalog">{t('product.allCatalog')}</Link>
           </div>
           <div className="shop-grid">
             {similar.map((x, i) => (
@@ -116,7 +123,7 @@ export default function Product() {
           <motion.div className="buy-bar" initial={{ y: '120%' }} animate={{ y: 0 }} exit={{ y: '120%' }} transition={{ duration: 0.35, ease: [0.2, 0.7, 0.2, 1] }}>
             <div>
               <strong>{fmt(p.price)}</strong>
-              <span>{p.name}</span>
+              <span>{v.name}</span>
             </div>
             <AddButton id={p.id} />
           </motion.div>

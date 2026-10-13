@@ -5,13 +5,13 @@ import Icon from '../Icons.jsx'
 import AnimatedNumber from '../components/AnimatedNumber.jsx'
 import ScrollReveal, { fadeUp } from '../components/ScrollReveal.jsx'
 import { PRESETS, SLOTS, optionErrors, scores, summarize } from '../configurator/rules.js'
-import { byId, fmt, products } from '../data'
+import { byId, products } from '../data'
+import { useLang } from '../i18n/index.jsx'
 import useMedia from '../useMedia.js'
 import { useStore } from '../store.jsx'
 
 const MAX_PCS = 50
 const DEFAULT_PHOTO = '/products/tower-black.jpg'
-const money = (n) => fmt(Math.round(n))
 
 function partsFromParams(params) {
   const parts = {}
@@ -28,6 +28,7 @@ function buildName(parts, total) {
 }
 
 function SlotOptions({ slot, index, parts, onPick, mobile, open, onToggle }) {
+  const { t, fmt, tp } = useLang()
   const options = useMemo(
     () => products.filter((p) => p.cat === slot.cat && (slot.filter?.(p) ?? true)).sort((a, b) => a.price - b.price),
     [slot],
@@ -43,14 +44,14 @@ function SlotOptions({ slot, index, parts, onPick, mobile, open, onToggle }) {
     <>
       <Title id={titleId} className="cfg-title">
         <span className={`cfg-num ${mobile && selected ? 'done' : ''}`}>{num}</span>
-        {slot.label}
+        {t(slot.labelKey)}
       </Title>
       <AnimatePresence mode="wait" initial={false}>
         <motion.span
           key={selected?.id ?? 'none'} className="cfg-pick"
           initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.18 }}
         >
-          {selected ? selected.name : slot.required ? 'Не выбрано' : 'Не нужна'}
+          {selected ? tp(selected).name : slot.required ? t('cfg.pick.empty') : t('cfg.pick.optional')}
         </motion.span>
       </AnimatePresence>
       {mobile && <i className="cfg-chev" aria-hidden="true" />}
@@ -71,22 +72,23 @@ function SlotOptions({ slot, index, parts, onPick, mobile, open, onToggle }) {
               <label className={`cfg-option ${!selected ? 'on' : ''}`}>
                 <input type="radio" name={slot.id} checked={!selected} onChange={() => onPick(slot.id, null)} />
                 <i className="cfg-dot" aria-hidden="true" />
-                <span className="cfg-main"><strong>{slot.none}</strong></span>
+                <span className="cfg-main"><strong>{t(slot.noneKey)}</strong></span>
               </label>
             )}
             {options.map((p) => {
               const bad = optionErrors(slot.id, p, parts)[0]
               const on = selected?.id === p.id
+              const view = tp(p)
               return (
                 <label key={p.id} className={`cfg-option ${on ? 'on' : ''} ${bad ? 'bad' : ''}`}>
                   <input type="radio" name={slot.id} checked={on} onChange={() => onPick(slot.id, p.id)} aria-describedby={bad ? `bad-${slot.id}-${p.id}` : undefined} />
                   <i className="cfg-dot" aria-hidden="true" />
                   <span className="cfg-main">
-                    <strong>{p.name}</strong>
-                    <span className="cfg-sub">{p.highlights.join(' · ')}</span>
+                    <strong>{view.name}</strong>
+                    <span className="cfg-sub">{view.highlights.join(' · ')}</span>
                     {bad && (
                       <span className="cfg-issue" id={`bad-${slot.id}-${p.id}`}>
-                        <Icon name="alert" size={14} /> Не подходит: {bad.text}
+                        <Icon name="alert" size={14} /> {t('cfg.msg.error')} {t(bad.msg, bad.vars)}
                       </span>
                     )}
                   </span>
@@ -102,6 +104,7 @@ function SlotOptions({ slot, index, parts, onPick, mobile, open, onToggle }) {
 }
 
 export default function Configurator() {
+  const { t, fmt, tp } = useLang()
   const [params, setParams] = useSearchParams()
   const { addMany, openCart } = useStore()
   const [count, setCount] = useState(1)
@@ -110,6 +113,7 @@ export default function Configurator() {
   const [openSlot, setOpenSlot] = useState('cpu')
   const timer = useRef(0)
 
+  const money = (n) => fmt(Math.round(n))
   const parts = useMemo(() => partsFromParams(params), [params])
   const sum = summarize(parts)
   const score = scores(parts)
@@ -144,30 +148,34 @@ export default function Configurator() {
   const share = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href)
-      setCopied('Ссылка скопирована')
+      setCopied('cfg.copied')
     } catch {
-      setCopied('Скопируйте адрес из строки браузера')
+      setCopied('cfg.copyManual')
     }
     setTimeout(() => setCopied(''), 2500)
   }
 
   const required = SLOTS.filter((x) => x.required).length
-  const statusText = sum.errors.length ? `Ошибок: ${sum.errors.length}` : sum.missing.length ? `Выбрано ${required - sum.missing.length} из ${required}` : 'Всё подходит'
+  const statusText = sum.errors.length
+    ? t('cfg.status.errors', { n: sum.errors.length })
+    : sum.missing.length
+      ? t('cfg.status.selected', { n: required - sum.missing.length, total: required })
+      : t('cfg.status.ok')
 
   return (
     <div className="container page cfg">
-      <nav className="crumbs" aria-label="Навигация по разделам">
-        <Link to="/">Главная</Link> / <span aria-current="page">Конфигуратор</span>
+      <nav className="crumbs" aria-label={t('cfg.crumb.nav')}>
+        <Link to="/">{t('cfg.crumb.home')}</Link> / <span aria-current="page">{t('cfg.crumb.current')}</span>
       </nav>
       <header className="shop-head">
-        <h1>Соберите свой компьютер</h1>
-        <p>Выберите комплектующие, и мы соберём, протестируем и доставим ПК за 48 часов. Совместимость проверяем автоматически.</p>
+        <h1>{t('cfg.title')}</h1>
+        <p>{t('cfg.lead')}</p>
       </header>
 
-      <div className="pills" role="group" aria-label="Готовые сборки">
+      <div className="pills" role="group" aria-label={t('cfg.presets')}>
         {PRESETS.map((p) => (
-          <button key={p.id} type="button" className={`pill ${activePreset?.id === p.id ? 'active' : ''}`} aria-pressed={activePreset?.id === p.id} title={p.note} onClick={() => applyPreset(p)}>
-            {p.name}
+          <button key={p.id} type="button" className={`pill ${activePreset?.id === p.id ? 'active' : ''}`} aria-pressed={activePreset?.id === p.id} title={t(p.noteKey)} onClick={() => applyPreset(p)}>
+            {t(p.nameKey)}
           </button>
         ))}
       </div>
@@ -177,7 +185,7 @@ export default function Configurator() {
           {SLOTS.map((slot, i) => <SlotOptions key={slot.id} slot={slot} index={i} parts={parts} onPick={pick} mobile={mobile} open={openSlot === slot.id} onToggle={() => setOpenSlot((o) => (o === slot.id ? null : slot.id))} />)}
         </div>
 
-        <aside className="cfg-summary" id="summary" aria-label="Ваша сборка">
+        <aside className="cfg-summary" id="summary" aria-label={t('cfg.summary')}>
           <div className="cfg-scroll">
           <div className="cfg-photo">
             <AnimatePresence initial={false}>
@@ -190,7 +198,7 @@ export default function Configurator() {
           </div>
 
           <div className="cfg-body">
-            <p className="cfg-eyebrow">Ваша сборка</p>
+            <p className="cfg-eyebrow">{t('cfg.summary')}</p>
             <h2>{buildName(parts, sum.total)}</h2>
 
             {chosen.length ? (
@@ -198,18 +206,18 @@ export default function Configurator() {
                 <AnimatePresence initial={false}>
                   {chosen.map((s) => (
                     <motion.div key={s.id} layout initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
-                      <dt>{s.label}</dt>
-                      <dd>{parts[s.id].name}</dd>
+                      <dt>{t(s.labelKey)}</dt>
+                      <dd>{tp(parts[s.id]).name}</dd>
                     </motion.div>
                   ))}
                 </AnimatePresence>
               </dl>
             ) : (
-              <p className="muted-text cfg-none">Выберите комплектующие или начните с готовой сборки.</p>
+              <p className="muted-text cfg-none">{t('cfg.summary.empty')}</p>
             )}
 
-            <div className="cfg-scores" aria-label="Оценка производительности">
-              {[['Игры', score?.gaming ?? 0], ['Работа и рендер', score?.work ?? 0]].map(([label, v]) => (
+            <div className="cfg-scores" aria-label={t('cfg.scores')}>
+              {[[t('cfg.score.gaming'), score?.gaming ?? 0], [t('cfg.score.work'), score?.work ?? 0]].map(([label, v]) => (
                 <div key={label}>
                   <p><span>{label}</span><b><AnimatedNumber value={v} />/100</b></p>
                   <i><u style={{ width: `${v}%` }} /></i>
@@ -218,50 +226,52 @@ export default function Configurator() {
             </div>
 
             <div className="cfg-status" role="status" aria-live="polite">
-              {sum.errors.map((i) => <p key={i.text} className="cfg-msg err"><Icon name="alert" size={18} /><span><b>Не подходит:</b> {i.text}</span></p>)}
-              {sum.warnings.map((i) => <p key={i.text} className="cfg-msg warn"><Icon name="alert" size={18} /><span><b>Внимание:</b> {i.text}</span></p>)}
-              {sum.missing.length > 0 && <p className="cfg-msg todo"><span>Не выбрано: {sum.missing.map((m) => m.label.toLowerCase()).join(', ')}.</span></p>}
-              {sum.complete && !sum.warnings.length && <p className="cfg-msg ok"><Icon name="check" size={18} /><span>Все детали совместимы.</span></p>}
+              {sum.errors.map((i) => <p key={i.msg} className="cfg-msg err"><Icon name="alert" size={18} /><span><b>{t('cfg.msg.error')}</b> {t(i.msg, i.vars)}</span></p>)}
+              {sum.warnings.map((i) => <p key={i.msg} className="cfg-msg warn"><Icon name="alert" size={18} /><span><b>{t('cfg.msg.warn')}</b> {t(i.msg, i.vars)}</span></p>)}
+              {sum.missing.length > 0 && <p className="cfg-msg todo"><span>{t('cfg.status.missing', { list: sum.missing.map((m) => t(m.labelKey).toLowerCase()).join(', ') })}</span></p>}
+              {sum.complete && !sum.warnings.length && <p className="cfg-msg ok"><Icon name="check" size={18} /><span>{t('cfg.msg.ok')}</span></p>}
             </div>
 
             {sum.load && (
-              <p className="cfg-power">Нагрузка ≈ {sum.load} Вт{parts.psu ? ` · блок питания ${parts.psu.compat.watts} Вт` : ` · блок от ${sum.recommended} Вт`}</p>
+              <p className="cfg-power">{parts.psu
+                ? t('cfg.power.set', { load: sum.load, watts: parts.psu.compat.watts })
+                : t('cfg.power.need', { load: sum.load, rec: sum.recommended })}</p>
             )}
 
             <div className="cfg-qty">
-              <label htmlFor="pcs">Количество ПК</label>
+              <label htmlFor="pcs">{t('cfg.qty')}</label>
               <div className="qty">
-                <button type="button" onClick={() => setPcs(count - 1)} aria-label="Меньше">−</button>
+                <button type="button" onClick={() => setPcs(count - 1)} aria-label={t('cfg.qty.less')}>−</button>
                 <input id="pcs" type="number" inputMode="numeric" min="1" max={MAX_PCS} value={count} onChange={(e) => setPcs(e.target.value)} />
-                <button type="button" onClick={() => setPcs(count + 1)} aria-label="Больше">+</button>
+                <button type="button" onClick={() => setPcs(count + 1)} aria-label={t('cfg.qty.more')}>+</button>
               </div>
             </div>
-            {count >= 5 && <p className="muted-text cfg-bulk">Для партии от 5 ПК <Link to="/#contacts" className="link-inline">запросите спеццену</Link>.</p>}
+            {count >= 5 && <p className="muted-text cfg-bulk">{t('cfg.bulk.pre')} <Link to="/#contacts" className="link-inline">{t('cfg.bulk.link')}</Link>.</p>}
           </div>
           </div>
 
           <div className="cfg-foot">
             <div className="cfg-total">
-              <span>Итого{count > 1 ? ` за ${count} шт.` : ''}</span>
+              <span>{count > 1 ? t('cfg.total.qty', { n: count }) : t('cfg.total')}</span>
               <strong><AnimatedNumber value={sum.total * count} format={money} /></strong>
             </div>
-            <p className="cfg-note">Сборка и тестирование включены</p>
-            <button className="btn btn-lg cfg-add" disabled={!sum.complete} onClick={addBuild}>В корзину</button>
+            <p className="cfg-note">{t('cfg.note')}</p>
+            <button className="btn btn-lg cfg-add" disabled={!sum.complete} onClick={addBuild}>{t('cfg.addToCart')}</button>
             <div className="cfg-actions">
-              <button className="link-btn" onClick={share} disabled={!chosen.length}>{copied || 'Скопировать ссылку на сборку'}</button>
-              <button className="link-btn" onClick={reset} disabled={!chosen.length}>Сбросить</button>
+              <button className="link-btn" onClick={share} disabled={!chosen.length}>{copied ? t(copied) : t('cfg.copyLink')}</button>
+              <button className="link-btn" onClick={reset} disabled={!chosen.length}>{t('cfg.reset')}</button>
             </div>
           </div>
         </aside>
       </div>
 
       <div className="cfg-bar">
-        <div><span className="muted-text">Итого</span> <strong><AnimatedNumber value={sum.total * count} format={money} /></strong></div>
+        <div><span className="muted-text">{t('cfg.total')}</span> <strong><AnimatedNumber value={sum.total * count} format={money} /></strong></div>
         <span className={`cfg-bar-state ${sum.errors.length ? 'err' : ''}`}>{statusText}</span>
         {sum.complete ? (
-          <button type="button" className="btn" onClick={addBuild}>В корзину</button>
+          <button type="button" className="btn" onClick={addBuild}>{t('cfg.addToCart')}</button>
         ) : (
-          <a className="btn" href="#summary">К сборке</a>
+          <a className="btn" href="#summary">{t('cfg.toSummary')}</a>
         )}
       </div>
     </div>
